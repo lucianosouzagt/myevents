@@ -12,10 +12,10 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('attendees', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('event_id')->constrained()->onDelete('cascade');
-            $table->foreignId('user_id')->nullable()->constrained()->onDelete('set null');
-            $table->foreignId('invitation_id')->nullable()->constrained()->onDelete('set null');
+            $table->uuid('id')->primary();
+            $table->foreignUuid('event_id')->constrained()->onDelete('cascade');
+            $table->foreignUuid('user_id')->nullable()->constrained()->onDelete('set null');
+            $table->foreignUuid('invitation_id')->nullable()->constrained()->onDelete('set null');
             $table->string('name')->nullable(); // Redundant if user_id or invitation_id exists, but good for quick access or walk-ins
             $table->string('email')->nullable();
             $table->timestamps();

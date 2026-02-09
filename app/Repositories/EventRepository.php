@@ -11,7 +11,7 @@ class EventRepository extends BaseRepository
         parent::__construct($model);
     }
 
-    public function getByOrganizer(int $organizerId)
+    public function getByOrganizer(string $organizerId)
     {
         return $this->model->where('organizer_id', $organizerId)->get();
     }

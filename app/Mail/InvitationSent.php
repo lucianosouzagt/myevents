@@ -43,7 +43,7 @@ class InvitationSent extends Mailable implements ShouldQueue
             markdown: 'emails.invitations.sent',
             with: [
                 'event' => $this->invitation->event,
-                'url' => config('app.url') . '/rsvp/' . $this->invitation->token,
+                'url' => route('invitations.show', ['token' => $this->invitation->token]),
             ]
         );
     }
@@ -55,6 +55,14 @@ class InvitationSent extends Mailable implements ShouldQueue
      */
     public function attachments(): array
     {
-        return [];
+        $attachments = [];
+
+        if ($this->invitation->event->invitation_image_path) {
+            $attachments[] = \Illuminate\Mail\Mailables\Attachment::fromStorageDisk('public', $this->invitation->event->invitation_image_path)
+                ->as('convite.png')
+                ->withMime('image/png');
+        }
+
+        return $attachments;
     }
 }

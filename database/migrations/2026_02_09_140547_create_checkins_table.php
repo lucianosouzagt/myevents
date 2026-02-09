@@ -12,9 +12,9 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('checkins', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('event_id')->constrained()->onDelete('cascade');
-            $table->foreignId('attendee_id')->constrained()->onDelete('cascade');
+            $table->uuid('id')->primary();
+            $table->foreignUuid('event_id')->constrained()->onDelete('cascade');
+            $table->foreignUuid('attendee_id')->constrained()->onDelete('cascade');
             $table->timestamp('checked_in_at')->useCurrent();
             $table->timestamps();
         });

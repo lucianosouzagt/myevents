@@ -16,7 +16,7 @@ class CheckinService extends BaseService
         return QrCode::size(300)->generate($token);
     }
 
-    public function processCheckin(string $token, int $eventId)
+    public function processCheckin(string $token, string $eventId)
     {
         // 1. Find Invitation by Token
         $invitation = Invitation::where('token', $token)->first();

@@ -12,9 +12,9 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('invitations', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('event_id')->constrained()->onDelete('cascade');
-            $table->foreignId('user_id')->nullable()->constrained()->onDelete('set null'); // If registered
+            $table->uuid('id')->primary();
+            $table->foreignUuid('event_id')->constrained()->onDelete('cascade');
+            $table->foreignUuid('user_id')->nullable()->constrained()->onDelete('set null'); // If registered
             $table->string('email');
             $table->string('guest_name')->nullable(); // For non-registered
             $table->string('token')->unique();

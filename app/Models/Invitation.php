@@ -6,16 +6,20 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 
 class Invitation extends Model
 {
-    use SoftDeletes;
+    use SoftDeletes, HasUuids;
 
     protected $fillable = [
         'event_id',
         'user_id',
         'email',
+        'whatsapp',
         'guest_name',
+        'allowed_guests',
+        'confirmed_guests',
         'token',
         'status',
     ];
@@ -33,5 +37,10 @@ class Invitation extends Model
     public function attendee(): HasOne
     {
         return $this->hasOne(Attendee::class);
+    }
+
+    public function logs()
+    {
+        return $this->hasMany(InvitationLog::class);
     }
 }

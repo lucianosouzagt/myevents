@@ -6,6 +6,10 @@ Você foi convidado para o evento **{{ $event->title }}**.
 **Data:** {{ $event->start_time->format('d/m/Y H:i') }}  
 **Local:** {{ $event->location }}
 
+@if($event->invitation_image_path)
+![Convite]({{ $message->embed(storage_path('app/public/' . $event->invitation_image_path)) }})
+@endif
+
 Por favor, confirme sua presença clicando no botão abaixo.
 
 <x-mail::button :url="$url">

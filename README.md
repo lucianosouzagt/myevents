@@ -1,59 +1,122 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Gestão de Eventos API
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Sistema completo e escalável para Gestão de Eventos, desenvolvido com Laravel 11, PostgreSQL e Docker.
 
-## About Laravel
+## 🚀 Tecnologias Utilizadas
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+- **PHP 8.3** + **Laravel 11**
+- **PostgreSQL 15** (Banco de Dados)
+- **Redis** (Filas e Cache)
+- **Docker** & **Laravel Sail** (Ambiente de Desenvolvimento)
+- **Simple QR Code** (Geração de QR Codes)
+- **Sanctum** (Autenticação API)
+- **MailHog** (Teste de E-mails)
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## 📦 Funcionalidades Implementadas
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+### 👤 Usuários & Autenticação
+- Cadastro e Login (API Sanctum)
+- RBAC (Roles & Permissions) - Estrutura de banco pronta
 
-## Learning Laravel
+### 🎉 Eventos
+- CRUD Completo (Criar, Listar, Editar, Excluir)
+- Controle de privacidade (Público/Privado)
+- Regras de negócio via Service Layer
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+### ✉️ Convites & RSVP
+- Envio de convites por e-mail (Assíncrono via Queue)
+- Geração de Token Único por convite
+- Endpoint público para Confirmação de Presença (RSVP)
+- Prevenção de convites duplicados
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+### ✅ Check-in & QR Code
+- Geração de QR Code para convidados confirmados
+- Validação de QR Code no dia do evento (apenas organizador)
+- Bloqueio de check-in duplicado
 
-## Laravel Sponsors
+## 🛠️ Como Rodar o Projeto
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+### Pré-requisitos
+- Docker & Docker Compose instalados
 
-### Premium Partners
+### Passo a Passo
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+1. **Clone o repositório:**
+   ```bash
+   git clone <url-do-repositorio>
+   cd myevents
+   ```
 
-## Contributing
+2. **Configure o ambiente:**
+   ```bash
+   cp .env.example .env
+   ```
+   *As configurações do Docker já estão ajustadas no `.env.example` (Portas: App 8081, DB 5434, Redis 6380).*
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+3. **Suba os containers:**
+   ```bash
+   ./vendor/bin/sail up -d
+   ```
 
-## Code of Conduct
+4. **Instale as dependências e gere a chave:**
+   ```bash
+   ./vendor/bin/sail composer install
+   ./vendor/bin/sail artisan key:generate
+   ```
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+5. **Execute as migrações:**
+   ```bash
+   ./vendor/bin/sail artisan migrate
+   ```
 
-## Security Vulnerabilities
+6. **(Opcional) Popule o banco com dados falsos:**
+   ```bash
+   ./vendor/bin/sail artisan db:seed
+   ```
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+## 🧪 Rodando os Testes
 
-## License
+O projeto possui cobertura de testes automatizados para as principais funcionalidades.
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+```bash
+./vendor/bin/sail artisan test
+```
+
+## 📚 Documentação da API (Endpoints Principais)
+
+### Autenticação
+- `GET /api/user` - Dados do usuário logado
+
+### Eventos
+- `GET /api/events` - Listar eventos públicos
+- `POST /api/events` - Criar evento (Auth Required)
+- `PUT /api/events/{id}` - Atualizar evento (Auth + Owner)
+- `DELETE /api/events/{id}` - Excluir evento (Auth + Owner)
+
+### Convites & RSVP
+- `POST /api/invitations` - Enviar convites (Auth + Owner)
+  - Body: `{ "event_id": 1, "emails": ["email@teste.com"] }`
+- `GET /api/invitations/{token}` - Ver detalhes do convite
+- `POST /api/invitations/{token}/rsvp` - Confirmar presença
+  - Body: `{ "status": "confirmed" }`
+
+### Check-in
+- `GET /api/invitations/{token}/qrcode` - Obter QR Code do convite
+- `POST /api/checkin` - Realizar Check-in (Auth + Owner)
+  - Body: `{ "event_id": 1, "token": "token-do-convite" }`
+
+## 📨 Testando E-mails
+
+Os e-mails são interceptados pelo **MailHog**. Acesse o painel em:
+`http://localhost:8025`
+
+## 🏗️ Estrutura de Pastas
+
+- `app/Services` - Lógica de Negócio (DDD-Lite)
+- `app/Repositories` - Abstração de Banco de Dados
+- `app/Models` - Entidades Eloquent
+- `app/Http/Controllers` - Entrada da API
+- `tests/Feature` - Testes de Integração
+
+---
+Desenvolvido com ❤️ e Boas Práticas.

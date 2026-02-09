@@ -6,6 +6,8 @@ use App\Repositories\EventRepository;
 use Illuminate\Support\Facades\DB;
 use Exception;
 
+use Illuminate\Support\Facades\Storage;
+
 class EventService extends BaseService
 {
     protected $eventRepository;
@@ -30,16 +32,22 @@ class EventService extends BaseService
         return $this->eventRepository->getByOrganizer($userId);
     }
 
-    public function createEvent(array $data, int $organizerId)
+    public function createEvent(array $data, string $organizerId)
     {
         $data['organizer_id'] = $organizerId;
+        
+        if (isset($data['invitation_image'])) {
+            $path = $data['invitation_image']->store('invitation_images', 'public');
+            $data['invitation_image_path'] = $path;
+            unset($data['invitation_image']);
+        }
         
         return DB::transaction(function () use ($data) {
             return $this->eventRepository->create($data);
         });
     }
 
-    public function updateEvent(int $id, array $data, int $userId)
+    public function updateEvent(string $id, array $data, string $userId)
     {
         $event = $this->eventRepository->findById($id);
 
@@ -51,10 +59,21 @@ class EventService extends BaseService
             throw new Exception("Unauthorized.");
         }
 
+        if (isset($data['invitation_image'])) {
+            // Delete old image if exists
+            if ($event->invitation_image_path) {
+                Storage::disk('public')->delete($event->invitation_image_path);
+            }
+            
+            $path = $data['invitation_image']->store('invitation_images', 'public');
+            $data['invitation_image_path'] = $path;
+            unset($data['invitation_image']);
+        }
+
         return $this->eventRepository->update($id, $data);
     }
 
-    public function deleteEvent(int $id, int $userId)
+    public function deleteEvent(string $id, string $userId)
     {
         $event = $this->eventRepository->findById($id);
 
@@ -64,6 +83,10 @@ class EventService extends BaseService
 
         if ($event->organizer_id !== $userId) {
             throw new Exception("Unauthorized.");
+        }
+
+        if ($event->invitation_image_path) {
+            Storage::disk('public')->delete($event->invitation_image_path);
         }
 
         return $this->eventRepository->delete($id);

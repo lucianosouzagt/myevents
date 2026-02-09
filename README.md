@@ -1,147 +1,59 @@
-# 🎉 MyEvents
+<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
 
-**MyEvents** é uma plataforma de **gestão inteligente de eventos**, pensada para eliminar improviso e transformar organização em processo.
+<p align="center">
+<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
+<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
+<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
+<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
+</p>
 
-Do convite à confirmação, do planejamento ao consumo real — tudo em um só lugar.
+## About Laravel
 
----
+Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
 
-## 📌 Visão Geral
+- [Simple, fast routing engine](https://laravel.com/docs/routing).
+- [Powerful dependency injection container](https://laravel.com/docs/container).
+- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
+- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
+- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
+- [Robust background job processing](https://laravel.com/docs/queues).
+- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
 
-MyEvents permite criar e gerenciar eventos, enviar convites por **e-mail** e **WhatsApp**, acompanhar confirmações de presença (RSVP) e utilizar ferramentas práticas que ajudam no planejamento de bebidas e alimentos.
+Laravel is accessible, powerful, and provides tools required for large, robust applications.
 
-O foco do projeto é ser **simples para o usuário**, mas **robusto por baixo do capô**, pronto para evoluir de um MVP para um produto SaaS escalável.
+## Learning Laravel
 
----
+Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
 
-## 🚀 Funcionalidades
+If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
 
-### 📅 Gestão de Eventos
+## Laravel Sponsors
 
-* Criação e edição de eventos
-* Definição de data, local e descrição
-* Visão centralizada de todos os eventos
+We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
 
-### 👥 Gestão de Convidados
+### Premium Partners
 
-* Cadastro de convidados
-* Controle de status (confirmado, pendente, recusado)
-* Atualização em tempo real
+- **[Vehikl](https://vehikl.com)**
+- **[Tighten Co.](https://tighten.co)**
+- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
+- **[64 Robots](https://64robots.com)**
+- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
+- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
+- **[Redberry](https://redberry.international/laravel-development)**
+- **[Active Logic](https://activelogic.com)**
 
-### 📩 Convites & Confirmações
+## Contributing
 
-* Envio de convites por **e-mail**
-* Envio de convites por **WhatsApp**
-* Confirmação de presença integrada (RSVP)
-* Comunicação direta com os convidados
+Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
 
-### 🧮 Ferramentas Inteligentes
+## Code of Conduct
 
-* Calculadora de quantidade de **cerveja**
-* Calculadora de **refrigerantes**
-* Calculadora de **carnes**
-* Cálculo de **acompanhamentos**
-* Estimativas baseadas no número de convidados
+In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
 
----
+## Security Vulnerabilities
 
-## 🎯 Objetivo do Projeto
+If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
 
-Criar uma solução que ajude organizadores a:
+## License
 
-* Planejar melhor eventos
-* Reduzir desperdícios
-* Evitar surpresas no dia do evento
-* Centralizar informações e decisões
-
-Menos achismo. Mais controle.
-
----
-
-## 🧠 Arquitetura (Visão Conceitual)
-
-* Backend modular e desacoplado
-* Integrações externas tratadas como serviços
-* Processos assíncronos para envio de mensagens
-* Estrutura preparada para crescimento e extensibilidade
-
-Pensado desde o início para não virar um monolito engessado.
-
----
-
-## 🔐 Segurança & Governança
-
-* Autenticação e autorização por perfil
-* Isolamento lógico por evento / organizador
-* Base preparada para RBAC
-* Logs de ações (eventos, convites, confirmações)
-
----
-
-## 🛣️ Roadmap
-
-```
-[ MVP ]
- ├─ Criação e gestão de eventos
- ├─ Gestão de convidados
- ├─ Envio de convites (Email / WhatsApp)
- ├─ Confirmação de presença (RSVP)
- └─ Calculadoras de bebidas e alimentos
-
-        ↓
-
-[ V1 ]
- ├─ Dashboard do evento
- ├─ Métricas de confirmação
- ├─ Templates de eventos
- ├─ Histórico de eventos
- └─ Ajustes avançados nas calculadoras
-
-        ↓
-
-[ V2 ]
- ├─ Perfis de organizadores
- ├─ Eventos recorrentes
- ├─ Exportação de dados
- ├─ Integração com pagamentos
- └─ Notificações inteligentes
-
-        ↓
-
-[ SaaS ]
- ├─ Multi-tenant
- ├─ Planos e billing
- ├─ Controle de permissões
- ├─ API pública
- └─ App mobile
-```
-
----
-
-## 🧪 Status do Projeto
-
-🚧 Em desenvolvimento
-
-Contribuições são bem-vindas.
-
----
-
-## 📄 Licença
-
-Este projeto está licenciado sob a MIT License.
-
-Veja o arquivo [LICENSE](LICENSE) para mais detalhes.
-
----
-
-## 💡 Diferencial
-
-MyEvents não é só uma lista de convidados.
-
-É uma ferramenta de **gestão orientada à decisão**:
-
-* Quem vai
-* Quem confirmou
-* Quanto consumir
-
-Antes do problema aparecer.
+The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).

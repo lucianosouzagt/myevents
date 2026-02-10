@@ -203,19 +203,19 @@
             const women = parseInt(document.getElementById('women').value) || 0;
             const children = parseInt(document.getElementById('children').value) || 0;
 
-            // Rules:
-            // Meat: Man 400g, Woman 300g, Child 200g
-            // Beer: Man 12 cans (350ml), Woman 6 cans (Avg)
-            // Soda: Man 0.5L, Woman 0.5L, Child 1L
+            // Regras:
+            // Carne: Homem 350g, Mulher 250g, Criança 150g
+            // Cerveja: Homem 4 latas, Mulher 3 latas
+            // Refrigerante: Homem 0.5L, Mulher 1.0L, Criança 1.0L
 
-            const meat = (men * 0.4) + (women * 0.3) + (children * 0.2);
-            const beer = (men * 12) + (women * 6);
-            const soda = (men * 0.5) + (women * 0.5) + (children * 1); // Liters
+            const meat = (men * 0.35) + (women * 0.25) + (children * 0.15); // kg
+            const beer = (men * 4) + (women * 3); // latas
+            const soda = (men * 0.5) + (women * 1.0) + (children * 1.0); // Litros
 
             // Animation effect
-            animateValue(document.getElementById('meatResult'), meat.toFixed(1));
+            animateValue(document.getElementById('meatResult'), meat.toFixed(2));
             animateValue(document.getElementById('beerResult'), Math.ceil(beer));
-            animateValue(document.getElementById('sodaResult'), soda.toFixed(1));
+            animateValue(document.getElementById('sodaResult'), soda.toFixed(2));
         }
 
         function animateValue(obj, end) {

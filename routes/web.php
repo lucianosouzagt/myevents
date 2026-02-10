@@ -6,6 +6,9 @@ use App\Http\Controllers\Web\EventController;
 use App\Http\Controllers\Web\InvitationController;
 use App\Http\Controllers\Web\CheckinController;
 use App\Http\Controllers\Web\GuestController;
+use App\Http\Controllers\Web\BarbecueController;
+use App\Http\Controllers\Web\BarbecueSuggestionController;
+use App\Http\Controllers\Web\Admin\BarbecueAdminController;
 
 // Web Routes (Browser)
 
@@ -62,4 +65,18 @@ Route::middleware('auth')->group(function () {
     Route::get('/events/{eventId}/checkin', [CheckinController::class, 'index'])->name('events.checkin.index');
     Route::post('/events/{eventId}/checkin/{invitationId}', [CheckinController::class, 'toggle'])->name('events.checkin.toggle');
     Route::get('/events/{eventId}/checkin/report', [CheckinController::class, 'report'])->name('events.checkin.report');
+});
+
+// Barbecue Planner (auth required)
+Route::middleware('auth')->group(function () {
+    Route::get('/churrasco', [BarbecueController::class, 'index'])->name('barbecue.index');
+    Route::post('/churrasco/calcular', [BarbecueController::class, 'calculate'])->name('barbecue.calculate');
+    Route::get('/churrasco/sugerir', [BarbecueSuggestionController::class, 'create'])->name('barbecue.suggest');
+    Route::post('/churrasco/sugerir', [BarbecueSuggestionController::class, 'store'])->name('barbecue.suggest.store');
+});
+
+// Admin Suggestions
+Route::middleware('auth')->group(function () {
+    Route::get('/admin/churrasco/sugestoes', [BarbecueAdminController::class, 'index'])->name('barbecue.admin.suggestions');
+    Route::patch('/admin/churrasco/sugestoes/{id}', [BarbecueAdminController::class, 'moderate'])->name('barbecue.admin.moderate');
 });

@@ -7,6 +7,9 @@ use App\Services\InvitationService;
 use App\Models\Event;
 use Illuminate\Http\Request;
 
+use Illuminate\Support\Facades\Mail;
+use App\Mail\InvitationQrCodeMail;
+
 class InvitationController extends Controller
 {
     protected $invitationService;
@@ -66,6 +69,26 @@ class InvitationController extends Controller
             return back()->with('success', 'Sua resposta foi registrada!');
         } catch (\Exception $e) {
             return back()->with('error', $e->getMessage());
+        }
+    }
+
+    public function sendQrCode(Request $request, $token)
+    {
+        $invitation = $this->invitationService->getInvitationByToken($token);
+
+        if (!$invitation || $invitation->status !== 'confirmed') {
+            return back()->with('error', 'Convite não confirmado ou inválido.');
+        }
+
+        if (empty($invitation->email)) {
+            return back()->with('error', 'Nenhum e-mail cadastrado para este convite.');
+        }
+
+        try {
+            Mail::to($invitation->email)->send(new InvitationQrCodeMail($invitation));
+            return back()->with('success', 'QR Code enviado com sucesso para ' . $invitation->email);
+        } catch (\Exception $e) {
+            return back()->with('error', 'Erro ao enviar e-mail: ' . $e->getMessage());
         }
     }
 }

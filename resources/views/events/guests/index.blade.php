@@ -2,11 +2,7 @@
 
 @section('content')
 <div class="max-w-screen-xl mx-auto">
-    @if(session('success'))
-        <div class="p-4 mb-4 text-sm text-green-800 rounded-lg bg-green-50 dark:bg-gray-800 dark:text-green-400" role="alert">
-            {{ session('success') }}
-        </div>
-    @endif
+    <!-- Removido o bloco de session('success') daqui pois já existe no layout -->
     
     <div class="flex justify-between items-center mb-6">
         <div>
@@ -106,35 +102,83 @@
                 <form action="{{ route('events.guests.send', ['eventId' => $event->id, 'invitationId' => $invitation->id]) }}" method="POST">
                     @csrf
                     <input type="hidden" name="channels[]" value="email">
-                    <button type="submit" class="block w-full px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white text-left">Apenas Email</button>
+                    <button type="submit" class="block w-full px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white text-left text-blue-600 dark:text-blue-400">Enviar Convite (E-mail)</button>
                 </form>
             </li>
-            @if($invitation->whatsapp)
-            <li>
-                <form action="{{ route('events.guests.send', ['eventId' => $event->id, 'invitationId' => $invitation->id]) }}" method="POST">
-                    @csrf
-                    <input type="hidden" name="channels[]" value="whatsapp">
-                    <button type="submit" class="block w-full px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white text-left">Apenas WhatsApp</button>
-                </form>
-            </li>
-            <li>
-                <form action="{{ route('events.guests.send', ['eventId' => $event->id, 'invitationId' => $invitation->id]) }}" method="POST">
-                    @csrf
-                    <input type="hidden" name="channels[]" value="email">
-                    <input type="hidden" name="channels[]" value="whatsapp">
-                    <button type="submit" class="block w-full px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white text-left">Ambos</button>
-                </form>
-            </li>
+            @if($invitation->status === 'confirmed' && $invitation->email)
+                <li>
+                    <form action="{{ route('events.guests.send_qrcode', ['eventId' => $event->id, 'invitationId' => $invitation->id]) }}" method="POST">
+                        @csrf
+                        <button type="submit" class="block w-full px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white text-left text-blue-600 dark:text-blue-400">Enviar QR Code (E-mail)</button>
+                    </form>
+                </li>
             @endif
-            <li>
-                <form action="{{ route('events.guests.send', ['eventId' => $event->id, 'invitationId' => $invitation->id]) }}" method="POST">
-                    @csrf
-                    <input type="hidden" name="channels[]" value="email">
-                    @if($invitation->whatsapp) <input type="hidden" name="channels[]" value="whatsapp"> @endif
-                    <input type="hidden" name="debug" value="1">
-                    <button type="submit" class="block w-full px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white text-left border-t border-gray-200 dark:border-gray-600 text-yellow-600 dark:text-yellow-400">Modo Debug (Simular)</button>
-                </form>
-            </li>
+             @if($invitation->whatsapp)
+                @php
+                    $rsvpLink = route('invitations.show', $invitation->token);
+                    
+                    if ($event->whatsapp_message_template) {
+                        // Use custom template
+                        $message = $event->whatsapp_message_template;
+                        $message = str_replace('@{{guest_name}}', $invitation->guest_name, $message);
+                        $message = str_replace('@{{event_title}}', $event->title, $message);
+                        $message = str_replace('@{{event_date}}', $event->start_time->format('d/m/Y H:i'), $message);
+                        $message = str_replace('@{{event_location}}', $event->location, $message);
+                        $message = str_replace('@{{rsvp_link}}', $rsvpLink, $message);
+                        
+                        // Handle {{ }} placeholders just in case user typed them that way
+                        $message = str_replace('{{guest_name}}', $invitation->guest_name, $message);
+                        $message = str_replace('{{event_title}}', $event->title, $message);
+                        $message = str_replace('{{event_date}}', $event->start_time->format('d/m/Y H:i'), $message);
+                        $message = str_replace('{{event_location}}', $event->location, $message);
+                        $message = str_replace('{{rsvp_link}}', $rsvpLink, $message);
+
+                        // Fallback: Se o link não estiver na mensagem, adiciona ao final
+                        if (strpos($message, $rsvpLink) === false) {
+                            $message .= "\n\nConfirme aqui: " . $rsvpLink;
+                        }
+                    } else {
+                        // Default template
+                        $message = "Olá {$invitation->guest_name}! Você foi convidado para o evento {$event->title}.\n\n";
+                        $message .= "Data: {$event->start_time->format('d/m/Y H:i')}\n";
+                        $message .= "Local: {$event->location}\n\n";
+                        $message .= "Confirme sua presença aqui: {$rsvpLink}";
+                    }
+                    
+                    $encodedMessage = rawurlencode($message);
+                    
+                    // Remove non-digits for wa.me link
+                    $cleanPhone = preg_replace('/\D/', '', $invitation->whatsapp);
+                    // Ensure country code (basic BR assumption if length matches)
+                    if (strlen($cleanPhone) >= 10 && strlen($cleanPhone) <= 11) {
+                         $cleanPhone = '55' . $cleanPhone;
+                    }
+                    $waLink = "https://wa.me/{$cleanPhone}?text={$encodedMessage}";
+                @endphp
+                <li>
+                    <a href="{{ $waLink }}" target="_blank" class="block w-full px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white text-left text-green-600 dark:text-green-400">
+                        Enviar Convite (WhatsApp)
+                    </a>
+                </li>
+            @endif
+            @if($invitation->status === 'confirmed' && $invitation->whatsapp)
+                @php
+                    $qrLink = route('invitations.qrcode', $invitation->token);
+                    $waQrMessage = "Olá {$invitation->guest_name}, aqui está seu QR Code de acesso para o evento {$event->title}: {$qrLink}";
+                    $encodedQrMessage = rawurlencode($waQrMessage);
+                    
+                    $cleanPhone = preg_replace('/\D/', '', $invitation->whatsapp);
+                    if (strlen($cleanPhone) >= 10 && strlen($cleanPhone) <= 11) {
+                         $cleanPhone = '55' . $cleanPhone;
+                    }
+                    $waQrLink = "https://wa.me/{$cleanPhone}?text={$encodedQrMessage}";
+                @endphp
+                <li>
+                    <a href="{{ $waQrLink }}" target="_blank" class="block w-full px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white text-left text-green-600 dark:text-green-400">
+                        Enviar QR Code (WhatsApp)
+                    </a>
+                </li>
+            @endif
         </ul>
     </div>
 @endforeach

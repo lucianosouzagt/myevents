@@ -16,7 +16,7 @@ class CheckinService extends BaseService
         return QrCode::size(300)->generate($token);
     }
 
-    public function processCheckin(string $token, int $eventId)
+    public function processCheckin(string $token, string $eventId)
     {
         // 1. Find Invitation by Token
         $invitation = Invitation::where('token', $token)->first();
@@ -66,5 +66,43 @@ class CheckinService extends BaseService
         ]);
 
         return $checkin;
+    }
+
+    public function toggleCheckin(string $eventId, string $invitationId)
+    {
+        $invitation = Invitation::findOrFail($invitationId);
+        
+        // Ensure invitation belongs to event
+        if ($invitation->event_id !== $eventId) {
+             throw new Exception("Convite não pertence ao evento.");
+        }
+        
+        // Get or Create Attendee
+        $attendee = Attendee::firstOrCreate(
+            ['invitation_id' => $invitation->id],
+            [
+                'event_id' => $eventId,
+                'email' => $invitation->email,
+                'name' => $invitation->guest_name
+            ]
+        );
+
+        $existingCheckin = Checkin::where('attendee_id', $attendee->id)
+                                  ->where('event_id', $eventId)
+                                  ->first();
+
+        if ($existingCheckin) {
+            // Undo Checkin
+            $existingCheckin->delete();
+            return ['status' => 'checked_out'];
+        } else {
+            // Do Checkin
+            Checkin::create([
+                'event_id' => $eventId,
+                'attendee_id' => $attendee->id,
+                'checked_in_at' => now(),
+            ]);
+            return ['status' => 'checked_in'];
+        }
     }
 }

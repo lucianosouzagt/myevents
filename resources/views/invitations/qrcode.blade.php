@@ -10,10 +10,13 @@
     </div>
 
     <p class="text-sm text-gray-500 mb-4">Apresente este QR Code na entrada do evento.</p>
-    <p class="font-mono bg-gray-100 p-2 rounded text-xs">{{ $token }}</p>
+    
+    <p class="text-xs font-mono bg-gray-100 p-3 rounded break-all mx-auto max-w-full text-gray-600 mb-6">
+        {{ $token }}
+    </p>
 
     <div class="mt-8">
-        <a href="{{ route('events.show', $event->id) }}" class="text-blue-600 hover:underline">Voltar para o evento</a>
+        <a href="{{ route('invitations.show', $token) }}" class="text-blue-600 hover:underline">Voltar para o convite</a>
     </div>
 </div>
 @endsection

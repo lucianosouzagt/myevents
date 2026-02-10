@@ -4,6 +4,9 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{{ config('app.name', 'MyEvents') }}</title>
+    
+    @yield('head')
+
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -24,10 +27,13 @@
 <body class="bg-gray-50 text-gray-900 antialiased dark:bg-gray-900 dark:text-white transition-colors duration-200">
     <nav class="bg-white border-b border-gray-200 fixed w-full z-20 top-0 start-0 dark:bg-gray-800 dark:border-gray-700">
         <div class="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4">
-            <a href="{{ url('/') }}" class="flex items-center space-x-3 rtl:space-x-reverse">
-                <img src="{{ asset('images/myevents-logo-horizoltal.png') }}" class="w-[150px]" alt="MyEvents Logo" />
-            </a>
-            <div class="flex md:order-2 space-x-3 md:space-x-0 rtl:space-x-reverse items-center">
+            <div class="flex flex-col items-center mx-auto md:mx-0">
+                <a href="{{ url('/') }}" class="flex items-center space-x-3 rtl:space-x-reverse">
+                    <img src="{{ asset('images/myevents-logo-horizoltal.png') }}" class="w-full max-w-[150px] h-auto" alt="MyEvents Logo" />
+                </a>
+            </div>
+            
+            <div class="flex md:order-2 space-x-3 md:space-x-0 rtl:space-x-reverse items-center absolute right-4 top-4 md:static">
                 <!-- Dark Mode Toggle -->
                 <button id="theme-toggle" type="button" class="text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-700 rounded-lg text-sm p-2.5 mr-2">
                     <svg id="theme-toggle-dark-icon" class="hidden w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path></svg>
@@ -35,7 +41,7 @@
                 </button>
 
                 @auth
-                    <div class="flex items-center gap-4">
+                    <div class="hidden md:flex items-center gap-4">
                         <span class="text-sm text-gray-700 dark:text-gray-300">Olá, {{ Auth::user()->name }}</span>
                         <form method="POST" action="{{ route('logout') }}">
                             @csrf
@@ -64,7 +70,13 @@
                     <li>
                         <a href="{{ route('events.create') }}" class="block py-2 px-3 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:hover:text-blue-700 md:p-0 dark:text-white md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent dark:border-gray-700">Criar Evento</a>
                     </li>
-                    @endauth
+                    <li class="md:hidden border-t border-gray-200 dark:border-gray-700 pt-2 mt-2">
+                        <form method="POST" action="{{ route('logout') }}">
+                            @csrf
+                            <button type="submit" class="block w-full text-left py-2 px-3 text-red-600 rounded hover:bg-gray-100 dark:text-red-500 dark:hover:bg-gray-700">Sair</button>
+                        </form>
+                    </li>
+                @endauth
                 </ul>
             </div>
         </div>

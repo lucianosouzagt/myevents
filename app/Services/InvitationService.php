@@ -14,12 +14,10 @@ use Exception;
 class InvitationService extends BaseService
 {
     protected $invitationRepository;
-    protected $whatsAppService;
 
-    public function __construct(InvitationRepository $invitationRepository, WhatsAppService $whatsAppService)
+    public function __construct(InvitationRepository $invitationRepository)
     {
         $this->invitationRepository = $invitationRepository;
-        $this->whatsAppService = $whatsAppService;
     }
 
     // Deprecated but kept for compatibility with existing bulk send route
@@ -95,25 +93,6 @@ class InvitationService extends BaseService
             }
         }
 
-        if (in_array('whatsapp', $channels) && $invitation->whatsapp) {
-            $rsvpLink = route('invitations.show', $invitation->token);
-            $message = "Olá {$invitation->guest_name}! Você foi convidado para o evento {$invitation->event->title}.\n\n";
-            $message .= "Data: {$invitation->event->start_time->format('d/m/Y H:i')}\n";
-            $message .= "Local: {$invitation->event->location}\n\n";
-            $message .= "Confirme sua presença aqui: {$rsvpLink}";
-
-            $response = $this->whatsAppService->sendMessage($invitation->whatsapp, $message, $debug);
-            
-            $this->logInvitation(
-                $invitation->id, 
-                'whatsapp', 
-                $response['status'] == 'sent' || $response['status'] == 'debug' ? $response['status'] : 'failed', 
-                json_encode($response)
-            );
-
-            $results['whatsapp'] = $response;
-        }
-
         return $results;
     }
 
@@ -133,6 +112,11 @@ class InvitationService extends BaseService
 
         if (!$invitation) {
             throw new Exception("Convite inválido ou expirado.");
+        }
+        
+        // Validate RSVP Deadline
+        if ($invitation->event->rsvp_deadline && now()->gt($invitation->event->rsvp_deadline)) {
+            throw new Exception("O prazo para confirmação de presença encerrou em " . $invitation->event->rsvp_deadline->format('d/m/Y H:i'));
         }
         
         if (!in_array($status, ['confirmed', 'declined'])) {

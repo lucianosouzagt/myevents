@@ -119,4 +119,4 @@ Os e-mails são interceptados pelo **MailHog**. Acesse o painel em:
 - `tests/Feature` - Testes de Integração
 
 ---
-Desenvolvido com ❤️ e Boas Práticas.
+Desenvolvido por @lucianosouzagt.

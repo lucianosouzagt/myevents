@@ -17,11 +17,14 @@ class Event extends Model
         'organizer_id',
         'title',
         'description',
+        'whatsapp_message_template',
         'invitation_image_path',
         'location',
+        'location_url',
         'google_maps_link',
         'start_time',
         'end_time',
+        'rsvp_deadline',
         'capacity',
         'is_public',
     ];
@@ -29,6 +32,7 @@ class Event extends Model
     protected $casts = [
         'start_time' => 'datetime',
         'end_time' => 'datetime',
+        'rsvp_deadline' => 'datetime',
         'is_public' => 'boolean',
     ];
 

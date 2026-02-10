@@ -16,12 +16,15 @@ class UpdateEventRequest extends FormRequest
         return [
             'title' => 'sometimes|string|max:255',
             'description' => 'nullable|string',
+            'whatsapp_message_template' => 'nullable|string|max:1000',
             'invitation_image' => 'nullable|image|mimes:jpeg,png,gif|max:5120', // Max 5MB
             'location' => 'sometimes|string|max:255',
+            'location_url' => 'nullable|url|max:500',
             'google_maps_link' => 'nullable|url|max:500',
             'start_time' => 'sometimes|date',
             'has_end_time' => 'sometimes|boolean',
             'end_time' => 'nullable|required_if:has_end_time,1|date|after:start_time',
+            'rsvp_deadline' => 'nullable|date',
             'capacity' => 'sometimes|integer|min:1',
             'is_public' => 'boolean',
         ];

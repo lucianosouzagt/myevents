@@ -81,9 +81,17 @@
         <!-- Área do Organizador: Convites e Check-in -->
         @if(auth()->id() === $event->organizer_id)
             <div class="bg-white p-8 border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700">
-                <div class="flex justify-between items-center mb-6">
-                    <h2 class="text-2xl font-bold text-gray-900 dark:text-white">Gerenciar Convidados</h2>
-                    <a href="{{ route('events.guests.index', $event->id) }}" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Gerenciar Lista Completa</a>
+                <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
+                    <h2 class="text-2xl font-bold text-gray-900 dark:text-white">Painel do Organizador</h2>
+                    <div class="flex gap-2 w-full md:w-auto">
+                        <a href="{{ route('events.guests.index', $event->id) }}" class="flex-1 text-center text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
+                            Gerenciar Convidados
+                        </a>
+                        <a href="{{ route('events.checkin.index', $event->id) }}" class="flex-1 text-center text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800">
+                            <svg class="w-4 h-4 inline-block mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                            Tela de Check-in
+                        </a>
+                    </div>
                 </div>
                 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
@@ -172,10 +180,68 @@
             <div class="mt-6 bg-white p-6 border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700">
                 <h3 class="text-lg font-bold text-gray-900 mb-4 dark:text-white">Convite</h3>
                 <div class="flex justify-center">
-                    <img src="{{ Storage::url($event->invitation_image_path) }}" alt="Convite: {{ $event->title }}" class="rounded-lg shadow-sm border border-gray-200 dark:border-gray-600 max-w-full h-auto cursor-pointer hover:opacity-90 transition-opacity" onclick="window.open(this.src, '_blank')">
+                    <img src="{{ Storage::url($event->invitation_image_path) }}" 
+                         alt="Convite: {{ $event->title }}" 
+                         class="rounded-lg shadow-sm border border-gray-200 dark:border-gray-600 max-w-full h-auto cursor-pointer hover:opacity-90 transition-opacity" 
+                         onclick="openImageModal(this.src)">
                 </div>
                 <p class="mt-2 text-xs text-center text-gray-500 dark:text-gray-400">Clique para ampliar</p>
             </div>
+
+            <!-- Image Modal -->
+            <div id="imageModal" class="fixed inset-0 z-50 hidden bg-black bg-opacity-90 overflow-auto flex items-center justify-center p-4" onclick="closeImageModal()">
+                <div class="relative">
+                    <button class="fixed top-4 right-4 text-white hover:text-gray-300 focus:outline-none z-50 bg-black/50 rounded-full p-2" onclick="closeImageModal()">
+                        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                    </button>
+                    <img id="modalImage" src="" alt="Convite Ampliado" 
+                         class="max-w-full max-h-[90vh] rounded-lg shadow-2xl object-contain cursor-zoom-in transition-all duration-300"
+                         onclick="toggleZoom(event)">
+                </div>
+            </div>
+
+            <script>
+                function openImageModal(src) {
+                    const modal = document.getElementById('imageModal');
+                    const modalImg = document.getElementById('modalImage');
+                    
+                    // Reset zoom state
+                    modalImg.classList.add('max-h-[90vh]', 'max-w-full', 'cursor-zoom-in');
+                    modalImg.classList.remove('cursor-zoom-out', 'max-w-none', 'max-h-none');
+                    
+                    modalImg.src = src;
+                    modal.classList.remove('hidden');
+                    document.body.style.overflow = 'hidden';
+                }
+
+                function closeImageModal() {
+                    const modal = document.getElementById('imageModal');
+                    modal.classList.add('hidden');
+                    document.body.style.overflow = '';
+                }
+
+                function toggleZoom(event) {
+                    event.stopPropagation(); // Prevent closing modal
+                    const img = event.target;
+                    
+                    if (img.classList.contains('max-h-[90vh]')) {
+                        // Zoom In (Original Size)
+                        img.classList.remove('max-h-[90vh]', 'max-w-full', 'cursor-zoom-in');
+                        img.classList.add('cursor-zoom-out', 'max-w-none', 'max-h-none');
+                    } else {
+                        // Zoom Out (Fit Screen)
+                        img.classList.add('max-h-[90vh]', 'max-w-full', 'cursor-zoom-in');
+                        img.classList.remove('cursor-zoom-out', 'max-w-none', 'max-h-none');
+                    }
+                }
+
+                // Close on escape key
+                document.addEventListener('keydown', function(event) {
+                    if (event.key === 'Escape') {
+                        closeImageModal();
+                    }
+                });
+            </script>
         @endif
     </div>
 </div>

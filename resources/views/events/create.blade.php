@@ -17,6 +17,12 @@
         </div>
 
         <div class="mb-5">
+            <label for="whatsapp_message_template" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Mensagem Personalizada WhatsApp (Opcional)</label>
+            <textarea name="whatsapp_message_template" id="whatsapp_message_template" rows="3" placeholder="Olá @{{guest_name}}! Você foi convidado para @{{event_title}}..." class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">{{ old('whatsapp_message_template') }}</textarea>
+            <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Variáveis disponíveis: @{{guest_name}}, @{{event_title}}, @{{event_date}}, @{{event_location}}, @{{rsvp_link}}</p>
+        </div>
+
+        <div class="mb-5">
             <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white" for="invitation_image">Imagem do Convite</label>
             <input class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400" id="invitation_image" name="invitation_image" type="file" accept="image/png, image/jpeg, image/gif" onchange="previewImage(event)">
             <p class="mt-1 text-sm text-gray-500 dark:text-gray-300">JPG, PNG ou GIF (Max. 5MB).</p>
@@ -46,11 +52,23 @@
         </div>
 
         <div class="mb-5">
+            <label for="rsvp_deadline" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Data Limite para Confirmação (RSVP) - Opcional</label>
+            <input type="datetime-local" name="rsvp_deadline" id="rsvp_deadline" value="{{ old('rsvp_deadline') }}" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+            <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Se definido, os convidados não poderão alterar sua resposta após esta data.</p>
+        </div>
+
+        <div class="mb-5">
             <label for="location" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Local</label>
             <input type="text" name="location" id="location" value="{{ old('location') }}" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" required>
         </div>
 
         <div class="mb-5">
+            <label for="location_url" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">URL do Local (Opcional)</label>
+            <input type="url" name="location_url" id="location_url" value="{{ old('location_url') }}" placeholder="https://maps.google.com/..." class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+            <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Link direto para o mapa (Google Maps, Waze, etc).</p>
+        </div>
+
+        <div class="mb-5 hidden">
             <label for="google_maps_link" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Link do Google Maps (Opcional)</label>
             <input type="url" name="google_maps_link" id="google_maps_link" value="{{ old('google_maps_link') }}" placeholder="https://maps.google.com/..." class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
         </div>

@@ -33,7 +33,7 @@ class CheckinController extends Controller
 
     public function store(Request $request)
     {
-        // Manual Checkin by Organizer
+        // Manual Checkin by Organizer (via Scanner or API simulation)
         $request->validate([
             'event_id' => 'required|exists:events,id',
             'token' => 'required|string',
@@ -50,5 +50,84 @@ class CheckinController extends Controller
         } catch (\Exception $e) {
             return back()->with('error', $e->getMessage());
         }
+    }
+
+    public function index(Request $request, $eventId)
+    {
+        $event = \App\Models\Event::with('invitations.checkins')->findOrFail($eventId);
+        
+        if ($event->organizer_id !== auth()->id()) {
+            abort(403);
+        }
+
+        $query = $event->invitations()->where('status', 'confirmed');
+
+        // Search Filter
+        if ($request->has('search') && $request->search) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('guest_name', 'ilike', "%{$search}%")
+                  ->orWhere('email', 'ilike', "%{$search}%");
+            });
+        }
+
+        // Status Filter
+        if ($request->has('status')) {
+            if ($request->status === 'present') {
+                $query->whereHas('checkins');
+            } elseif ($request->status === 'absent') {
+                $query->whereDoesntHave('checkins');
+            }
+        }
+        
+        // Sorting
+        $sort = $request->get('sort', 'name');
+        if ($sort === 'name') {
+            $query->orderBy('guest_name');
+        } elseif ($sort === 'arrival') {
+             // Complex sort for arrival time, usually done by join or subquery. 
+             // For simplicity, let's keep name default and simple checkin sort
+             // This is a basic implementation.
+        }
+
+        $guests = $query->get();
+        
+        // Calculate Stats
+        $totalConfirmed = $event->invitations()->where('status', 'confirmed')->count();
+        $totalPresent = $event->checkins()->count();
+        $totalAbsent = $totalConfirmed - $totalPresent;
+
+        return view('events.checkin.index', compact('event', 'guests', 'totalConfirmed', 'totalPresent', 'totalAbsent'));
+    }
+
+    public function toggle(Request $request, $eventId, $invitationId)
+    {
+        $event = \App\Models\Event::findOrFail($eventId);
+        if ($event->organizer_id !== auth()->id()) {
+            abort(403);
+        }
+
+        try {
+            $result = $this->checkinService->toggleCheckin($eventId, $invitationId);
+            $message = $result['status'] === 'checked_in' ? 'Check-in realizado!' : 'Check-in desfeito!';
+            return back()->with('success', $message);
+        } catch (\Exception $e) {
+            return back()->with('error', $e->getMessage());
+        }
+    }
+    
+    public function report($eventId)
+    {
+        $event = \App\Models\Event::with(['invitations' => function($q) {
+            $q->where('status', 'confirmed');
+        }, 'invitations.checkins'])->findOrFail($eventId);
+        
+        if ($event->organizer_id !== auth()->id()) {
+            abort(403);
+        }
+
+        // Simple PDF generation logic or HTML view for print
+        // For MVP, we'll return a print-friendly view
+        return view('events.checkin.report', compact('event'));
     }
 }

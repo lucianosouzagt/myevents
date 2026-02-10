@@ -8,6 +8,9 @@ use App\Models\Invitation;
 use App\Services\InvitationService;
 use Illuminate\Http\Request;
 
+use Illuminate\Support\Facades\Mail;
+use App\Mail\InvitationQrCodeMail;
+
 class GuestController extends Controller
 {
     protected $invitationService;
@@ -120,18 +123,43 @@ class GuestController extends Controller
         
         $request->validate([
             'channels' => 'required|array',
-            'channels.*' => 'in:email,whatsapp'
+            'channels.*' => 'in:email'
         ]);
 
         $debug = $request->has('debug');
 
-        $results = $this->invitationService->sendSingleInvitation($invitation, $request->channels, $debug);
+        // Only email support remains on backend
+        $results = $this->invitationService->sendSingleInvitation($invitation, ['email'], $debug);
 
         if ($debug) {
-            // In debug mode, we might want to show what would be sent
              return back()->with('success', 'Modo Debug: ' . json_encode($results));
         }
 
-        return back()->with('success', 'Convite enviado para fila de processamento.');
+        return back()->with('success', 'Convite por e-mail enviado para fila de processamento.');
+    }
+
+    public function sendQrCode(Request $request, $eventId, $invitationId)
+    {
+        $event = Event::findOrFail($eventId);
+        if ($event->organizer_id !== auth()->id()) {
+            abort(403);
+        }
+
+        $invitation = $event->invitations()->findOrFail($invitationId);
+
+        if ($invitation->status !== 'confirmed') {
+             return back()->with('error', 'O convidado precisa confirmar presença antes de receber o QR Code.');
+        }
+
+        if (empty($invitation->email)) {
+             return back()->with('error', 'O convidado não possui e-mail cadastrado.');
+        }
+
+        try {
+            Mail::to($invitation->email)->send(new InvitationQrCodeMail($invitation));
+            return back()->with('success', 'QR Code enviado com sucesso para ' . $invitation->email);
+        } catch (\Exception $e) {
+            return back()->with('error', 'Erro ao enviar e-mail: ' . $e->getMessage());
+        }
     }
 }

@@ -39,6 +39,11 @@ class Invitation extends Model
         return $this->hasOne(Attendee::class);
     }
 
+    public function checkins()
+    {
+        return $this->hasManyThrough(Checkin::class, Attendee::class);
+    }
+
     public function logs()
     {
         return $this->hasMany(InvitationLog::class);

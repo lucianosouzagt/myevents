@@ -185,7 +185,7 @@
                 <p class="mt-6 text-xs text-center text-gray-500 dark:text-gray-400 italic">*Estimativa baseada em consumo médio de 4 horas de festa.</p>
                 
                 <div class="mt-8 text-center">
-                    <p class="text-sm font-medium text-gray-900 dark:text-white mb-3">Gostou da ferramenta? Cadastre-se agora e tenha acesso ao organizador completo!</p>
+                    <p class="text-sm font-medium text-gray-900 dark:text-white mb-6">Gostou da ferramenta? Cadastre-se agora e tenha acesso ao organizador completo!</p>
                     <a href="{{ route('register') }}" class="inline-flex items-center justify-center px-5 py-2.5 text-sm font-medium text-center text-white bg-green-600 rounded-lg hover:bg-green-700 focus:ring-4 focus:outline-none focus:ring-green-300 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800">
                         Quero organizar meu churrasco
                         <svg class="w-3.5 h-3.5 ml-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">

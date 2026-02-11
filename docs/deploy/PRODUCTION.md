@@ -13,15 +13,9 @@
    - `git clone <repo>`
    - `cp .env.example .env`
    - Ajuste `.env` (APP_URL, DB_*, MAIL_*, CACHE/SESSION/QUEUE)
-3. Build e subida
+3. Subida simplificada
    - `docker compose -f infra/docker/docker-compose.prod.yml up -d --build`
-   - Instalar dependências PHP no código montado:  
-     `docker compose -f infra/docker/docker-compose.prod.yml exec app composer install --no-dev --prefer-dist --optimize-autoloader`
-   - Build de assets (gera public/build no host):  
-     `docker compose -f infra/docker/docker-compose.prod.yml run --rm assets`
-   - Gerar APP_KEY:  
-     `docker compose -f infra/docker/docker-compose.prod.yml exec app php artisan key:generate`
-4. Pós-subida
+   - `docker compose -f infra/docker/docker-compose.prod.yml exec app php artisan key:generate`
    - `docker compose -f infra/docker/docker-compose.prod.yml exec app php artisan migrate --force`
    - `docker compose -f infra/docker/docker-compose.prod.yml exec app php artisan storage:link`
    - `docker compose -f infra/docker/docker-compose.prod.yml exec app php artisan config:cache route:cache view:cache`
@@ -54,7 +48,8 @@
 - VITE_APP_NAME
 
 Observação:
-- Se optar por usar Postgres/Redis via Compose, descomente os serviços `pgsql`/`redis` em `infra/docker/docker-compose.prod.yml` e ajuste o `.env` (DB_HOST=pgsql, REDIS_HOST=redis).
+- O docker-compose já inclui Postgres (serviço `pgsql`). Ajuste `.env.production` com DB_* conforme desejado.
+ - Para simplificar, usamos `SESSION_DRIVER=database` e `QUEUE_CONNECTION=sync`, dispensando Redis.
 
 ### Troubleshooting
 - Erro em build: `composer install ... exit code: 1`

@@ -1,5 +1,3 @@
-version: "3.9"
-
 services:
   app:
     build:
@@ -14,6 +12,11 @@ services:
       - app_storage:/var/www/html/storage
     networks:
       - web
+    depends_on:
+      pgsql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
 
   nginx:
     image: nginx:1.25-alpine
@@ -39,34 +42,35 @@ services:
     networks:
       - web
 
-  # Optional managed services can replace these:
-  # pgsql:
-  #   image: postgres:16-alpine
-  #   environment:
-  #     POSTGRES_DB: ${DB_DATABASE}
-  #     POSTGRES_USER: ${DB_USERNAME}
-  #     POSTGRES_PASSWORD: ${DB_PASSWORD}
-  #   volumes:
-  #     - pgdata:/var/lib/postgresql/data
-  #   healthcheck:
-  #     test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME}"]
-  #     interval: 5s
-  #     retries: 5
-  #     timeout: 5s
-  #   networks:
-  #     - web
+  pgsql:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: ${DB_DATABASE}
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME}"]
+      interval: 5s
+      retries: 5
+      timeout: 5s
+    networks:
+      - web
 
-  # redis:
-  #   image: redis:7-alpine
-  #   volumes:
-  #     - redisdata:/data
-  #   healthcheck:
-  #     test: ["CMD", "redis-cli", "ping"]
-  #     interval: 5s
-  #     retries: 5
-  #     timeout: 3s
-  #   networks:
-  #     - web
+  redis:
+    image: redis:7-alpine
+    container_name: myevents-redis
+    restart: unless-stopped
+    volumes:
+      - redisdata:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      retries: 5
+      timeout: 3s
+    networks:
+      - web
 
 networks:
   web:
@@ -74,5 +78,6 @@ networks:
 
 volumes:
   app_storage:
-  # pgdata:
+  pgdata:
+  redisdata:
   # redisdata:

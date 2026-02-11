@@ -46,6 +46,10 @@ services:
     image: postgres:16-alpine
     env_file:
       - ../../.env
+    environment:
+      POSTGRES_DB: ${DB_DATABASE:-myevents}
+      POSTGRES_USER: ${DB_USERNAME:-myevents}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-change-me}
     volumes:
       - pgdata:/var/lib/postgresql/data
     ports:

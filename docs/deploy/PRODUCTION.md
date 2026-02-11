@@ -15,6 +15,7 @@
    - Ajuste `.env` (APP_URL, DB_*, MAIL_*, CACHE/SESSION/QUEUE)
 3. Subida simplificada
    - `docker compose -f infra/docker/docker-compose.prod.yml up -d --build`
+   - O container `app` executa `composer install` automaticamente na inicialização.
    - `docker compose -f infra/docker/docker-compose.prod.yml exec app php artisan key:generate`
    - `docker compose -f infra/docker/docker-compose.prod.yml exec app php artisan migrate --force`
    - `docker compose -f infra/docker/docker-compose.prod.yml exec app php artisan storage:link`
@@ -55,7 +56,7 @@ Observação:
 - Erro em build: `composer install ... exit code: 1`
   - Verifique acesso à internet do servidor, DNS e firewall.
   - A imagem já inclui extensões necessárias (zip, gd, intl, pdo_pgsql). Se persistir, rode o composer após subir os serviços:  
-    `docker compose -f infra/docker/docker-compose.prod.yml exec app composer install --no-dev --prefer-dist --optimize-autoloader --no-scripts`
+    `docker compose -f infra/docker/docker-compose.prod.yml exec app composer install --no-dev --prefer-dist --optimize-autoloader`
   - Depois execute:  
     `php artisan key:generate && php artisan migrate --force && php artisan storage:link && php artisan config:cache route:cache view:cache`
 

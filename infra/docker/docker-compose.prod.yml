@@ -5,6 +5,7 @@ services:
       dockerfile: infra/docker/Dockerfile
     container_name: myevents-app
     restart: unless-stopped
+    command: sh -c "composer install --no-dev --prefer-dist --optimize-autoloader --no-interaction && php-fpm"
     env_file:
       - ../../.env.production
     volumes:

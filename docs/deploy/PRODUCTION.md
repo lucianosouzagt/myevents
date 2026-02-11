@@ -56,6 +56,14 @@
 Observação:
 - Se optar por usar Postgres/Redis via Compose, descomente os serviços `pgsql`/`redis` em `infra/docker/docker-compose.prod.yml` e ajuste o `.env` (DB_HOST=pgsql, REDIS_HOST=redis).
 
+### Troubleshooting
+- Erro em build: `composer install ... exit code: 1`
+  - Verifique acesso à internet do servidor, DNS e firewall.
+  - A imagem já inclui extensões necessárias (zip, gd, intl, pdo_pgsql). Se persistir, rode o composer após subir os serviços:  
+    `docker compose -f infra/docker/docker-compose.prod.yml exec app composer install --no-dev --prefer-dist --optimize-autoloader --no-scripts`
+  - Depois execute:  
+    `php artisan key:generate && php artisan migrate --force && php artisan storage:link && php artisan config:cache route:cache view:cache`
+
 ## Segurança e Performance
 - Habilitar OPcache (já ativo na imagem) e caches Laravel
 - Forçar HTTPS e HSTS

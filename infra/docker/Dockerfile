@@ -14,10 +14,11 @@ FROM composer:2 AS composer
 FROM php:8.3-fpm-alpine
 WORKDIR /var/www/html
 
-# System deps + GD
+# System deps + GD + ZIP
 RUN apk add --no-cache \
     bash git libpq-dev oniguruma-dev icu-dev \
     freetype-dev libjpeg-turbo-dev libpng-dev \
+    libzip-dev zip unzip \
  && docker-php-ext-configure gd --with-freetype --with-jpeg \
  && docker-php-ext-install \
     pdo \
@@ -25,6 +26,7 @@ RUN apk add --no-cache \
     mbstring \
     intl \
     gd \
+    zip \
  && docker-php-ext-enable opcache
 
 # Evita o "dubious ownership"
@@ -36,11 +38,13 @@ COPY --from=composer /usr/bin/composer /usr/bin/composer
 # 👉 Copia primeiro só os arquivos do composer (cache inteligente)
 COPY composer.json composer.lock ./
 
+ENV COMPOSER_ALLOW_SUPERUSER=1
 RUN composer install \
     --no-dev \
     --prefer-dist \
     --optimize-autoloader \
-    --no-interaction
+    --no-interaction \
+    --no-scripts
 
 # Agora copia o resto da app
 COPY . .

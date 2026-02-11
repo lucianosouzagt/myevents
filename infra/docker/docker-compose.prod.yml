@@ -1,49 +1,78 @@
-version: "3.8"
+version: "3.9"
 
 services:
   app:
     build:
       context: ../../
       dockerfile: infra/docker/Dockerfile
+    container_name: myevents-app
+    restart: unless-stopped
     env_file:
       - ../../.env
     volumes:
-      - ../../:/var/www/html:ro
+      - ../../:/var/www/html:rw
       - app_storage:/var/www/html/storage
     networks:
       - web
 
   nginx:
     image: nginx:1.25-alpine
-    volumes:
-      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
-      - ../../:/var/www/html:ro
-      - app_storage:/var/www/html/storage
+    container_name: myevents-nginx
+    restart: unless-stopped
     ports:
       - "80:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      - ../../:/var/www/html:rw
+      - app_storage:/var/www/html/storage
     depends_on:
       - app
     networks:
       - web
 
-  # db:
+  assets:
+    image: node:20-alpine
+    working_dir: /app
+    volumes:
+      - ../../:/app
+    command: sh -c "npm ci && npm run build"
+    networks:
+      - web
+
+  # Optional managed services can replace these:
+  # pgsql:
   #   image: postgres:16-alpine
   #   environment:
-  #     POSTGRES_DB: myevents
-  #     POSTGRES_USER: myevents
-  #     POSTGRES_PASSWORD: change-me
+  #     POSTGRES_DB: ${DB_DATABASE}
+  #     POSTGRES_USER: ${DB_USERNAME}
+  #     POSTGRES_PASSWORD: ${DB_PASSWORD}
   #   volumes:
   #     - pgdata:/var/lib/postgresql/data
-  #   ports:
-  #     - "5432:5432"
+  #   healthcheck:
+  #     test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME}"]
+  #     interval: 5s
+  #     retries: 5
+  #     timeout: 5s
   #   networks:
   #     - web
 
-volumes:
-  app_storage:
-  # pgdata:
+  # redis:
+  #   image: redis:7-alpine
+  #   volumes:
+  #     - redisdata:/data
+  #   healthcheck:
+  #     test: ["CMD", "redis-cli", "ping"]
+  #     interval: 5s
+  #     retries: 5
+  #     timeout: 3s
+  #   networks:
+  #     - web
 
 networks:
   web:
     driver: bridge
 
+volumes:
+  app_storage:
+  # pgdata:
+  # redisdata:

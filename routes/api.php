@@ -3,6 +3,7 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\EventController;
 use App\Http\Controllers\InvitationController;
+use App\Http\Controllers\CheckinController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
 

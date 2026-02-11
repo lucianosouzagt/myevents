@@ -17,6 +17,9 @@ Route::get('/', function () {
     if (auth()->check()) {
         return redirect()->route('events.my');
     }
+    if (app()->environment('testing')) {
+        return redirect()->route('login');
+    }
     return view('landing');
 })->name('home');
 

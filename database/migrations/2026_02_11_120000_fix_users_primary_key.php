@@ -5,7 +5,7 @@ use Illuminate\Support\Facades\DB;
 
 return new class extends Migration
 {
-    public bool $withinTransaction = false;
+    // intentionally not overriding withinTransaction type/property
 
     public function up(): void
     {

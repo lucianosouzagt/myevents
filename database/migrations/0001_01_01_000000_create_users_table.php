@@ -7,7 +7,6 @@ use Illuminate\Support\Facades\DB;
 
 class CreateUsersTable extends Migration
 {
-    public bool $withinTransaction = false;
 
     public function up(): void
     {

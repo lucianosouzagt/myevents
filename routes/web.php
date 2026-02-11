@@ -9,19 +9,12 @@ use App\Http\Controllers\Web\GuestController;
 use App\Http\Controllers\Web\BarbecueController;
 use App\Http\Controllers\Web\BarbecueSuggestionController;
 use App\Http\Controllers\Web\Admin\BarbecueAdminController;
+use App\Http\Controllers\Web\HomeController;
 
 // Web Routes (Browser)
 
 // Landing Page
-Route::get('/', function () {
-    if (auth()->check()) {
-        return redirect()->route('events.my');
-    }
-    if (app()->environment('testing')) {
-        return redirect()->route('login');
-    }
-    return view('landing');
-})->name('home');
+Route::get('/', [HomeController::class, 'index'])->name('home');
 
 // Auth
 Route::get('/login', [AuthController::class, 'loginForm'])->name('login');

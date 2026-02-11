@@ -6,7 +6,7 @@ services:
     container_name: myevents-app
     restart: unless-stopped
     env_file:
-      - ../../.env
+      - ../../.env.production
     volumes:
       - ../../:/var/www/html:rw
       - app_storage:/var/www/html/storage
@@ -45,11 +45,11 @@ services:
   pgsql:
     image: postgres:16-alpine
     env_file:
-      - ../../.env
+      - ../../.env.production
     environment:
-      POSTGRES_DB: ${DB_DATABASE:-myevents}
-      POSTGRES_USER: ${DB_USERNAME:-myevents}
-      POSTGRES_PASSWORD: ${DB_PASSWORD:-change-me}
+      POSTGRES_DB: myevents
+      POSTGRES_USER: myevents
+      POSTGRES_PASSWORD: change-me
     volumes:
       - pgdata:/var/lib/postgresql/data
     ports:

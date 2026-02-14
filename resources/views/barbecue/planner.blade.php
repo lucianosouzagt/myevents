@@ -64,10 +64,12 @@
         <div class="mt-6">
             <button id="wa-share" class="px-4 py-2 rounded bg-green-600 text-white hover:bg-green-700">Compartilhar no WhatsApp</button>
         </div>
+        <script id="planner-data" type="application/json">{!! json_encode($result) !!}</script>
         <script>
             const shareBtn = document.getElementById('wa-share');
             shareBtn.addEventListener('click', function () {
-                const data = @json($result);
+                const dataEl = document.getElementById('planner-data');
+                const data = JSON.parse((dataEl && dataEl.textContent) || '{}');
                 let lines = [];
                 lines.push('Planejador de Churrasco');
                 lines.push('Homens: ' + data.men + ' | Mulheres: ' + data.women + ' | Crianças: ' + data.children);

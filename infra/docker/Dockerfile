@@ -54,6 +54,7 @@ RUN mkdir -p storage bootstrap/cache \
 
 # Assets
 COPY --from=assets /app/public/build ./public/build
+COPY infra/docker/php.ini /usr/local/etc/php/conf.d/uploads.ini
 
 ENV APP_ENV=production
 EXPOSE 9000

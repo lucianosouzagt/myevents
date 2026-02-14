@@ -14,13 +14,15 @@
    - `cp .env.example .env`
    - Ajuste `.env` (APP_URL, DB_*, MAIL_*, CACHE/SESSION/QUEUE)
 3. Subida simplificada
-   - `docker compose -f infra/docker/docker-compose.prod.yml up -d --build`
+   - `docker compose --env-file .env.production -f infra/docker/docker-compose.prod.yml up -d --build`
    - O container `app` copia `.env.production` para `.env` (se ainda não existir), executa `composer install` e gera `APP_KEY` automaticamente na inicialização.
    - `docker compose -f infra/docker/docker-compose.prod.yml exec app php artisan migrate --force`
    - `docker compose -f infra/docker/docker-compose.prod.yml exec app php artisan storage:link`
    - `docker compose -f infra/docker/docker-compose.prod.yml exec app php artisan config:cache route:cache view:cache`
-5. HTTPS (opcional)
-   - Use um proxy com Caddy/Traefik/Nginx + Certbot ou um LB gerenciado
+5. HTTPS (Nginx)
+   - Copie seus certificados para `infra/docker/certs/fullchain.pem` e `infra/docker/certs/privkey.pem`
+   - `docker compose -f infra/docker/docker-compose.prod.yml up -d --build`
+   - O Nginx redireciona HTTP→HTTPS e atende em 443 diretamente (sem Traefik).
 
 ## Option B — Bare Metal (Sem Docker)
 1. Instalar pacotes

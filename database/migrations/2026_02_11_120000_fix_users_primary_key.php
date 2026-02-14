@@ -9,6 +9,9 @@ return new class extends Migration
 
     public function up(): void
     {
+        if (DB::connection()->getDriverName() !== 'pgsql') {
+            return;
+        }
         // Ensure pgcrypto for gen_random_uuid()
         DB::unprepared('CREATE EXTENSION IF NOT EXISTS "pgcrypto";');
 

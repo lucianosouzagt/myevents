@@ -5,7 +5,13 @@ services:
       dockerfile: infra/docker/Dockerfile
     container_name: myevents-app
     restart: unless-stopped
-    command: sh -lc "if [ ! -f .env ]; then cp .env.production .env; fi && composer install --no-dev --prefer-dist --optimize-autoloader --no-interaction && php artisan key:generate || true && php-fpm"
+    command: >
+      sh -lc "
+      cp -f .env.production .env &&
+      composer install --no-dev --prefer-dist --optimize-autoloader --no-interaction &&
+      if [ -z \"$(grep '^APP_KEY=' .env | cut -d= -f2)\" ]; then php artisan key:generate; fi &&
+      php-fpm
+      "
     env_file:
       - ../../.env.production
     volumes:
@@ -23,18 +29,25 @@ services:
     image: nginx:1.25-alpine
     container_name: myevents-nginx
     restart: unless-stopped
-    ports:
-      - "80:80"
-      - "443:443"
     volumes:
       - ./nginx/conf.d:/etc/nginx/conf.d:ro
       - ../../:/var/www/html:rw
       - app_storage:/var/www/html/storage
-      - ./certs:/etc/nginx/certs:ro
     depends_on:
       - app
     networks:
       - web
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.myevents-http.rule=Host(`${TRAEFIK_HOST}`)"
+      - "traefik.http.routers.myevents-http.entrypoints=web"
+      - "traefik.http.routers.myevents-http.middlewares=redirect-to-https"
+      - "traefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https"
+      - "traefik.http.routers.myevents.rule=Host(`${TRAEFIK_HOST}`)"
+      - "traefik.http.routers.myevents.entrypoints=websecure"
+      - "traefik.http.routers.myevents.tls.certresolver=letsencrypt"
+      - "traefik.http.services.myevents.loadbalancer.server.port=80"
+      - "traefik.docker.network=web"
 
   assets:
     image: node:20-alpine
@@ -80,6 +93,28 @@ services:
     networks:
       - web
 
+  traefik:
+    image: traefik:v3.0
+    container_name: myevents-traefik
+    restart: unless-stopped
+    command:
+      - "--api.dashboard=true"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--certificatesresolvers.letsencrypt.acme.httpChallenge.entryPoint=web"
+      - "--certificatesresolvers.letsencrypt.acme.email=${TRAEFIK_EMAIL}"
+      - "--certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json"
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - traefik_letsencrypt:/letsencrypt
+    networks:
+      - web
+
 
 networks:
   web:
@@ -88,5 +123,5 @@ networks:
 volumes:
   app_storage:
   pgdata:
+  traefik_letsencrypt:
   redisdata:
-  # redisdata:

@@ -19,10 +19,10 @@
    - `docker compose -f infra/docker/docker-compose.prod.yml exec app php artisan migrate --force`
    - `docker compose -f infra/docker/docker-compose.prod.yml exec app php artisan storage:link`
    - `docker compose -f infra/docker/docker-compose.prod.yml exec app php artisan config:cache route:cache view:cache`
-5. HTTPS (Nginx)
-   - Copie seus certificados para `infra/docker/certs/fullchain.pem` e `infra/docker/certs/privkey.pem`
-   - `docker compose -f infra/docker/docker-compose.prod.yml up -d --build`
-   - O Nginx redireciona HTTP→HTTPS e atende em 443 diretamente (sem Traefik).
+5. HTTPS com Traefik
+   - Ajuste `TRAEFIK_HOST` e `TRAEFIK_EMAIL` em `.env.production`
+   - Traefik publica 80/443, obtém certificados via ACME HTTP-01 e encaminha para Nginx em 80
+   - Certifique-se de que o DNS do domínio aponta para o servidor e as portas 80/443 estão liberadas
 
 ## Option B — Bare Metal (Sem Docker)
 1. Instalar pacotes

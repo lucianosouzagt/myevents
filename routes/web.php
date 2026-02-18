@@ -9,7 +9,9 @@ use App\Http\Controllers\Web\GuestController;
 use App\Http\Controllers\Web\BarbecueController;
 use App\Http\Controllers\Web\BarbecueSuggestionController;
 use App\Http\Controllers\Web\Admin\BarbecueAdminController;
+use App\Http\Controllers\Web\Admin\AnalyticsController;
 use App\Http\Controllers\Web\HomeController;
+use App\Http\Controllers\Web\SitemapController;
 
 // Web Routes (Browser)
 
@@ -75,4 +77,9 @@ Route::middleware('auth')->group(function () {
 Route::middleware('auth')->group(function () {
     Route::get('/admin/churrasco/sugestoes', [BarbecueAdminController::class, 'index'])->name('barbecue.admin.suggestions');
     Route::patch('/admin/churrasco/sugestoes/{id}', [BarbecueAdminController::class, 'moderate'])->name('barbecue.admin.moderate');
+    Route::get('/admin/analytics', [AnalyticsController::class, 'index'])->name('admin.analytics.dashboard');
+    Route::get('/admin/analytics/export/csv', [AnalyticsController::class, 'exportCsv'])->name('admin.analytics.export.csv');
 });
+
+// SEO
+Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('sitemap');

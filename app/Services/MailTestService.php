@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\View;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use InvalidArgumentException;
+use App\Mail\TestHtmlMailable;
 
 class MailTestService
 {
@@ -101,24 +102,22 @@ class MailTestService
             ];
         }
 
-        Mail::html($body, function ($message) use ($subject, $recipients, $attachments) {
-            $message->subject($subject);
-            foreach ($recipients['to'] as $email) {
-                $message->to($email);
-            }
-            foreach ($recipients['cc'] as $email) {
-                $message->cc($email);
-            }
-            foreach ($recipients['bcc'] as $email) {
-                $message->bcc($email);
-            }
-            foreach ($attachments as $att) {
-                $message->attach($att['path'], array_filter([
-                    'as' => $att['name'] ?? null,
-                    'mime' => $att['mime'] ?? null,
-                ]));
-            }
-        });
+        $mailable = new TestHtmlMailable(
+            subjectLine: $subject,
+            template: $template,
+            data: $data,
+            htmlBody: $html ?? $body,
+            attachmentsList: $attachments,
+        );
+
+        $pending = Mail::to($recipients['to']);
+        if (!empty($recipients['cc'])) {
+            $pending->cc($recipients['cc']);
+        }
+        if (!empty($recipients['bcc'])) {
+            $pending->bcc($recipients['bcc']);
+        }
+        $pending->send($mailable);
 
         Log::channel(config('mailtest.channel', 'mailtest'))->info('MailTest sent successfully', [
             'to' => $recipients['to'],
@@ -133,4 +132,3 @@ class MailTestService
         ];
     }
 }
-

@@ -4,8 +4,15 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{{ config('app.name', 'MyEvents') }}</title>
+    <meta name="description" content="@yield('meta_description', 'Plataforma de gestão de eventos e convites.')">
+    <meta property="og:title" content="@yield('og_title', config('app.name', 'MyEvents'))">
+    <meta property="og:description" content="@yield('og_description', 'Crie, gerencie e acompanhe seus eventos.')">
+    <meta property="og:type" content="@yield('og_type', 'website')">
+    <meta property="og:url" content="{{ url()->current() }}">
+    <meta name="twitter:card" content="summary_large_image">
     
     @yield('head')
+    @yield('structured_data') 
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
@@ -75,6 +82,11 @@
                     <li>
                         <a href="{{ route('barbecue.index') }}" class="block py-2 px-3 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:hover:text-blue-700 md:p-0 dark:text-white md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent dark:border-gray-700">Churrasco</a>
                     </li>
+                    @if(method_exists(Auth::user(), 'hasRole') && Auth::user()->hasRole('admin'))
+                    <li>
+                        <a href="{{ route('admin.analytics.dashboard') }}" class="block py-2 px-3 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:hover:text-blue-700 md:p-0 dark:text-white md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent dark:border-gray-700">Admin · Analytics</a>
+                    </li>
+                    @endif
                     <li class="md:hidden border-t border-gray-200 dark:border-gray-700 pt-2 mt-2">
                         <form method="POST" action="{{ route('logout') }}">
                             @csrf
@@ -88,6 +100,11 @@
     </nav>
 
     <div class="pt-24 pb-12 px-4 max-w-screen-xl mx-auto min-h-screen">
+        @hasSection('breadcrumbs')
+            <nav class="mb-4 text-sm text-gray-600 dark:text-gray-300" aria-label="Breadcrumb">
+                @yield('breadcrumbs')
+            </nav>
+        @endif
         @if(session('success'))
             <div class="p-4 mb-4 text-sm text-green-800 rounded-lg bg-green-50 dark:bg-gray-800 dark:text-green-400" role="alert">
                 {{ session('success') }}

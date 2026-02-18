@@ -7,6 +7,7 @@ use App\Http\Controllers\CheckinController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Web\MailTestController;
+use App\Http\Controllers\Api\JwtAuthController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -15,6 +16,7 @@ Route::get('/user', function (Request $request) {
 // Auth
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
+Route::post('/jwt/login', [JwtAuthController::class, 'login']);
 
 // Public Events
 Route::get('/events', [EventController::class, 'index']);
@@ -44,3 +46,8 @@ Route::middleware('auth:sanctum')->group(function () {
 
 // Mail Test endpoint (controle de habilitação no controller)
 Route::post('/mail/test', [MailTestController::class, 'send'])->middleware('throttle:5,1');
+
+// JWT-protected sample (role-based)
+Route::middleware('jwt.auth:admin')->get('/admin/ping', function () {
+    return ['ok' => true, 'role' => 'admin'];
+});

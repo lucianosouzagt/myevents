@@ -13,6 +13,8 @@ use App\Http\Controllers\Web\Admin\AnalyticsController;
 use App\Http\Controllers\Web\HomeController;
 use App\Http\Controllers\Web\SitemapController;
 use App\Http\Controllers\Web\MailTestController;
+use App\Http\Controllers\Web\PasswordForceController;
+use App\Http\Controllers\Web\Admin\UserManagementController;
 
 // Web Routes (Browser)
 
@@ -33,7 +35,7 @@ Route::get('/rsvp/{token}/qrcode', [CheckinController::class, 'showQrCode'])->na
 Route::post('/invitations/{token}/qrcode/send', [InvitationController::class, 'sendQrCode'])->name('invitations.qrcode.send');
 
 // Protected Routes
-Route::middleware('auth')->group(function () {
+Route::middleware(['auth','inactivity.timeout','force.password.change'])->group(function () {
     // Events CRUD
     Route::get('/my-events', [EventController::class, 'myEvents'])->name('events.my');
     Route::get('/events/create', [EventController::class, 'create'])->name('events.create');
@@ -66,6 +68,12 @@ Route::middleware('auth')->group(function () {
     Route::get('/events/{eventId}/checkin/report', [CheckinController::class, 'report'])->name('events.checkin.report');
 });
 
+// Force password change
+Route::middleware('auth')->group(function () {
+    Route::get('/password/force', [PasswordForceController::class, 'form'])->name('password.force.form');
+    Route::post('/password/force', [PasswordForceController::class, 'update'])->name('password.force.update');
+});
+
 // Barbecue Planner (auth required)
 Route::middleware('auth')->group(function () {
     Route::get('/churrasco', [BarbecueController::class, 'index'])->name('barbecue.index');
@@ -74,12 +82,20 @@ Route::middleware('auth')->group(function () {
     Route::post('/churrasco/sugerir', [BarbecueSuggestionController::class, 'store'])->name('barbecue.suggest.store');
 });
 
-// Admin Suggestions
-Route::middleware('auth')->group(function () {
-    Route::get('/admin/churrasco/sugestoes', [BarbecueAdminController::class, 'index'])->name('barbecue.admin.suggestions');
-    Route::patch('/admin/churrasco/sugestoes/{id}', [BarbecueAdminController::class, 'moderate'])->name('barbecue.admin.moderate');
-    Route::get('/admin/analytics', [AnalyticsController::class, 'index'])->name('admin.analytics.dashboard');
-    Route::get('/admin/analytics/export/csv', [AnalyticsController::class, 'exportCsv'])->name('admin.analytics.export.csv');
+// Admin area (role-based)
+Route::middleware(['auth','role:admin','inactivity.timeout','force.password.change'])->prefix('admin')->name('admin.')->group(function () {
+    // Suggestions moderation
+    Route::get('/churrasco/sugestoes', [BarbecueAdminController::class, 'index'])->name('barbecue.suggestions');
+    Route::patch('/churrasco/sugestoes/{id}', [BarbecueAdminController::class, 'moderate'])->name('barbecue.moderate');
+    // Analytics
+    Route::get('/analytics', [AnalyticsController::class, 'index'])->name('analytics.dashboard');
+    Route::get('/analytics/export/csv', [AnalyticsController::class, 'exportCsv'])->name('analytics.export.csv');
+    // User management (event creators)
+    Route::get('/users', [UserManagementController::class, 'index'])->name('users.index');
+    Route::post('/users', [UserManagementController::class, 'store'])->name('users.store');
+    Route::post('/users/{user}/activate', [UserManagementController::class, 'activate'])->name('users.activate');
+    Route::post('/users/{user}/deactivate', [UserManagementController::class, 'deactivate'])->name('users.deactivate');
+    Route::post('/users/{user}/password/reset', [UserManagementController::class, 'resetPassword'])->name('users.password.reset');
 });
 
 // SEO

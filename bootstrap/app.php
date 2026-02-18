@@ -13,6 +13,12 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->appendToGroup('web', \App\Http\Middleware\TrackPageView::class);
+        $middleware->alias([
+            'role' => \App\Http\Middleware\RoleMiddleware::class,
+            'force.password.change' => \App\Http\Middleware\ForcePasswordChange::class,
+            'inactivity.timeout' => \App\Http\Middleware\InactivityTimeout::class,
+            'jwt.auth' => \App\Http\Middleware\JwtAuthenticate::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

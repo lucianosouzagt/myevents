@@ -16,6 +16,8 @@ use App\Http\Controllers\Web\MailTestController;
 use App\Http\Controllers\Web\PasswordForceController;
 use App\Http\Controllers\Web\Admin\UserManagementController;
 use App\Http\Controllers\Web\Admin\AdminLoginController;
+use App\Http\Controllers\Web\Admin\AdminTwoFactorController;
+use App\Http\Controllers\Web\Admin\AdminDashboardController;
 
 // Web Routes (Browser)
 
@@ -84,16 +86,16 @@ Route::middleware('auth')->group(function () {
 });
 
 // Admin auth
-Route::middleware('guest')->prefix('admin')->name('admin.')->group(function () {
+Route::middleware('guest:admin')->prefix('admin')->name('admin.')->group(function () {
     Route::get('/login', [AdminLoginController::class, 'show'])->name('login.form');
     Route::post('/login', [AdminLoginController::class, 'login'])->middleware('throttle:10,1')->name('login.post');
+    Route::get('/2fa', [AdminTwoFactorController::class, 'form'])->name('2fa.form');
+    Route::post('/2fa', [AdminTwoFactorController::class, 'verify'])->middleware('throttle:10,1')->name('2fa.verify');
 });
 
-// Admin area (role-based)
-Route::middleware(['auth','role:admin','inactivity.timeout','force.password.change'])->prefix('admin')->name('admin.')->group(function () {
-    Route::get('/', function () {
-        return redirect()->route('admin.analytics.dashboard');
-    })->name('home');
+// Admin area (separate guard)
+Route::middleware(['auth:admin','admin.timeout','admin.2fa'])->prefix('admin')->name('admin.')->group(function () {
+    Route::get('/', [AdminDashboardController::class, 'index'])->name('home');
     // Suggestions moderation
     Route::get('/churrasco/sugestoes', [BarbecueAdminController::class, 'index'])->name('barbecue.suggestions');
     Route::patch('/churrasco/sugestoes/{id}', [BarbecueAdminController::class, 'moderate'])->name('barbecue.moderate');

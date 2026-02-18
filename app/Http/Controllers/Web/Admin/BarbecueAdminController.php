@@ -7,12 +7,14 @@ use App\Models\BarbecueCategory;
 use App\Models\BarbecueItemType;
 use App\Models\BarbecueSuggestion;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class BarbecueAdminController extends Controller
 {
     public function index()
     {
-        if (!auth()->check() || !auth()->user()->hasRole('admin')) {
+        $user = Auth::user();
+        if (!$user || !method_exists($user, 'hasRole') || !\call_user_func([$user, 'hasRole'], 'admin')) {
             abort(403);
         }
         $pending = BarbecueSuggestion::where('status', BarbecueSuggestion::STATUS_PENDING)
@@ -24,7 +26,8 @@ class BarbecueAdminController extends Controller
 
     public function moderate(Request $request, int $id)
     {
-        if (!auth()->check() || !auth()->user()->hasRole('admin')) {
+        $user = Auth::user();
+        if (!$user || !method_exists($user, 'hasRole') || !\call_user_func([$user, 'hasRole'], 'admin')) {
             abort(403);
         }
         $request->validate([

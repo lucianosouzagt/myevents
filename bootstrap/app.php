@@ -18,6 +18,8 @@ return Application::configure(basePath: dirname(__DIR__))
             'force.password.change' => \App\Http\Middleware\ForcePasswordChange::class,
             'inactivity.timeout' => \App\Http\Middleware\InactivityTimeout::class,
             'jwt.auth' => \App\Http\Middleware\JwtAuthenticate::class,
+            'admin.2fa' => \App\Http\Middleware\AdminTwoFactor::class,
+            'admin.timeout' => \App\Http\Middleware\AdminTimeout::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

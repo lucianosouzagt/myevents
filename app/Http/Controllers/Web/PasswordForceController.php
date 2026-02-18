@@ -32,15 +32,21 @@ class PasswordForceController extends Controller
         }
         $hash = Hash::make($request->password);
         DB::transaction(function () use ($user, $hash) {
-            $user->update(['password' => $hash, 'must_change_password' => false]);
+            DB::table('users')->where('id', $user->id)->update([
+                'password' => $hash,
+                'must_change_password' => false,
+                'updated_at' => now(),
+            ]);
             DB::table('password_histories')->insert([
                 'user_id' => $user->id,
                 'password_hash' => $hash,
                 'created_at' => now(), 'updated_at' => now(),
             ]);
         });
-        $user->refresh();
-        Auth::login($user);
+        $fresh = \App\Models\User::find($user->id);
+        if ($fresh) {
+            Auth::login($fresh);
+        }
         $request->session()->regenerate();
         return redirect()->intended('/')->with('success', 'Senha alterada com sucesso.');
     }

@@ -20,16 +20,16 @@ class AdminLoginController extends Controller
             'email' => ['required','email'],
             'password' => ['required'],
         ]);
-        if (!Auth::attempt($credentials)) {
+        if (!Auth::guard('admin')->attempt($credentials)) {
             throw ValidationException::withMessages(['email' => 'Credenciais inválidas.']);
         }
         $request->session()->regenerate();
-        $user = Auth::user();
-        if (!$user || !method_exists($user, 'hasRole') || !$user->hasRole('admin')) {
-            Auth::logout();
+        $user = Auth::guard('admin')->user();
+        if (!$user) {
+            Auth::guard('admin')->logout();
             $request->session()->invalidate();
             $request->session()->regenerateToken();
-            throw ValidationException::withMessages(['email' => 'Acesso restrito a administradores.']);
+            throw ValidationException::withMessages(['email' => 'Falha ao iniciar sessão administrativa.']);
         }
         return redirect()->intended('/admin');
     }

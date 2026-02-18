@@ -12,7 +12,11 @@ class RoleMiddleware
     public function handle(Request $request, Closure $next, string $role): Response
     {
         $user = Auth::user();
-        if (!$user || !method_exists($user, 'hasRole') || !$user->hasRole($role)) {
+        if (
+            !$user
+            || !method_exists($user, 'hasRole')
+            || !call_user_func([$user, 'hasRole'], $role)
+        ) {
             abort(403);
         }
         return $next($request);

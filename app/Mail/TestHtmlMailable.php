@@ -16,12 +16,25 @@ class TestHtmlMailable extends Mailable
         public array $data = [],
         public ?string $htmlBody = null,
         public array $attachmentsList = [],
+        public array $toList = [],
+        public array $ccList = [],
+        public array $bccList = [],
     ) {
     }
 
     public function build(): static
     {
         $mail = $this->subject($this->subjectLine);
+
+        if (!empty($this->toList)) {
+            $mail->to($this->toList);
+        }
+        if (!empty($this->ccList)) {
+            $mail->cc($this->ccList);
+        }
+        if (!empty($this->bccList)) {
+            $mail->bcc($this->bccList);
+        }
 
         if ($this->template) {
             $mail->view($this->template, $this->data);
@@ -39,4 +52,3 @@ class TestHtmlMailable extends Mailable
         return $mail;
     }
 }
-

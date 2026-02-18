@@ -108,16 +108,12 @@ class MailTestService
             data: $data,
             htmlBody: $html ?? $body,
             attachmentsList: $attachments,
+            toList: $recipients['to'],
+            ccList: $recipients['cc'],
+            bccList: $recipients['bcc'],
         );
 
-        $pending = Mail::to($recipients['to']);
-        if (!empty($recipients['cc'])) {
-            $pending->cc($recipients['cc']);
-        }
-        if (!empty($recipients['bcc'])) {
-            $pending->bcc($recipients['bcc']);
-        }
-        $pending->send($mailable);
+        Mail::send($mailable);
 
         Log::channel(config('mailtest.channel', 'mailtest'))->info('MailTest sent successfully', [
             'to' => $recipients['to'],

@@ -38,5 +38,14 @@ class AdminUser extends Authenticatable
             'must_change_password' => 'boolean',
         ];
     }
-}
 
+    public function roles()
+    {
+        return $this->belongsToMany(\App\Models\AdminRole::class, 'admin_role_user', 'admin_user_id', 'role_id');
+    }
+
+    public function hasRole(string $slug): bool
+    {
+        return $this->roles()->where('slug', $slug)->exists();
+    }
+}

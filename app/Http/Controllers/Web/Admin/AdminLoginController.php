@@ -20,7 +20,8 @@ class AdminLoginController extends Controller
             'email' => ['required','email'],
             'password' => ['required'],
         ]);
-        if (!Auth::guard('admin')->attempt($credentials)) {
+        $remember = (bool) $request->boolean('remember');
+        if (!Auth::guard('admin')->attempt($credentials, $remember)) {
             throw ValidationException::withMessages(['email' => 'Credenciais inválidas.']);
         }
         $request->session()->regenerate();
@@ -32,5 +33,13 @@ class AdminLoginController extends Controller
             throw ValidationException::withMessages(['email' => 'Falha ao iniciar sessão administrativa.']);
         }
         return redirect()->intended('/admin');
+    }
+
+    public function logout(Request $request)
+    {
+        Auth::guard('admin')->logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+        return redirect()->route('admin.login.form');
     }
 }

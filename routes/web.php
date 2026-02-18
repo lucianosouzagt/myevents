@@ -18,6 +18,7 @@ use App\Http\Controllers\Web\Admin\UserManagementController;
 use App\Http\Controllers\Web\Admin\AdminLoginController;
 use App\Http\Controllers\Web\Admin\AdminTwoFactorController;
 use App\Http\Controllers\Web\Admin\AdminDashboardController;
+use App\Http\Controllers\Web\Admin\AdminUsersController;
 
 // Web Routes (Browser)
 
@@ -96,6 +97,7 @@ Route::middleware('guest:admin')->prefix('admin')->name('admin.')->group(functio
 // Admin area (separate guard)
 Route::middleware(['admin.auth','auth:admin','admin.timeout','admin.2fa'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/', [AdminDashboardController::class, 'index'])->name('home');
+    Route::post('/logout', [AdminLoginController::class, 'logout'])->name('logout');
     // Suggestions moderation
     Route::get('/churrasco/sugestoes', [BarbecueAdminController::class, 'index'])->name('barbecue.suggestions');
     Route::patch('/churrasco/sugestoes/{id}', [BarbecueAdminController::class, 'moderate'])->name('barbecue.moderate');
@@ -108,6 +110,15 @@ Route::middleware(['admin.auth','auth:admin','admin.timeout','admin.2fa'])->pref
     Route::post('/users/{user}/activate', [UserManagementController::class, 'activate'])->name('users.activate');
     Route::post('/users/{user}/deactivate', [UserManagementController::class, 'deactivate'])->name('users.deactivate');
     Route::post('/users/{user}/password/reset', [UserManagementController::class, 'resetPassword'])->name('users.password.reset');
+
+    // Administrative users (guard admin)
+    Route::get('/admins', [AdminUsersController::class, 'index'])->name('admins.index');
+    Route::get('/admins/create', [AdminUsersController::class, 'create'])->name('admins.create');
+    Route::post('/admins', [AdminUsersController::class, 'store'])->name('admins.store');
+    Route::get('/admins/{user}/edit', [AdminUsersController::class, 'edit'])->name('admins.edit');
+    Route::put('/admins/{user}', [AdminUsersController::class, 'update'])->name('admins.update');
+    Route::delete('/admins/{user}', [AdminUsersController::class, 'destroy'])->name('admins.destroy');
+    Route::post('/admins/{user}/reset', [AdminUsersController::class, 'reset'])->name('admins.reset');
 });
 
 // SEO

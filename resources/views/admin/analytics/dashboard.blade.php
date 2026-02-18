@@ -76,10 +76,17 @@
     </div>
 </div>
 
+<script id="daily-labels" type="application/json">{{ json_encode(collect($data['dailyGrowth'])->map(function($d){ return \Carbon\Carbon::parse($d->day)->format('d/m'); })->values()->toArray()) }}</script>
+<script id="daily-values" type="application/json">{{ json_encode(collect($data['dailyGrowth'])->map(function($d){ return $d->total; })->values()->toArray()) }}</script>
+<script id="devices-data" type="application/json">{{ json_encode($data['devices']) }}</script>
+<script id="sources-data" type="application/json">{{ json_encode($data['sources']) }}</script>
+
 <script>
     const dailyCtx = document.getElementById('dailyUsers').getContext('2d');
-    const dailyLabels = {!! json_encode(collect($data['dailyGrowth'])->map(fn($d) => \Carbon\Carbon::parse($d->day)->format('d/m'))->toArray()) !!};
-    const dailyValues = {!! json_encode(collect($data['dailyGrowth'])->map(fn($d) => $d->total)->toArray()) !!};
+    const dailyLabelsEl = document.getElementById('daily-labels');
+    const dailyValuesEl = document.getElementById('daily-values');
+    const dailyLabels = JSON.parse(dailyLabelsEl ? dailyLabelsEl.textContent : '[]');
+    const dailyValues = JSON.parse(dailyValuesEl ? dailyValuesEl.textContent : '[]');
     new Chart(dailyCtx, {
         type: 'line',
         data: {
@@ -89,7 +96,8 @@
     });
 
     const devicesCtx = document.getElementById('devicesChart').getContext('2d');
-    const devicesData = {!! json_encode($data['devices']) !!};
+    const devicesEl = document.getElementById('devices-data');
+    const devicesData = JSON.parse(devicesEl ? devicesEl.textContent : '{}');
     new Chart(devicesCtx, {
         type: 'doughnut',
         data: {
@@ -99,7 +107,8 @@
     });
 
     const sourcesCtx = document.getElementById('sourcesChart').getContext('2d');
-    const sourcesData = {!! json_encode($data['sources']) !!};
+    const sourcesEl = document.getElementById('sources-data');
+    const sourcesData = JSON.parse(sourcesEl ? sourcesEl.textContent : '{}');
     new Chart(sourcesCtx, {
         type: 'bar',
         data: {

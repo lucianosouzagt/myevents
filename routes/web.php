@@ -12,6 +12,7 @@ use App\Http\Controllers\Web\Admin\BarbecueAdminController;
 use App\Http\Controllers\Web\Admin\AnalyticsController;
 use App\Http\Controllers\Web\HomeController;
 use App\Http\Controllers\Web\SitemapController;
+use App\Http\Controllers\Web\MailTestController;
 
 // Web Routes (Browser)
 
@@ -83,3 +84,6 @@ Route::middleware('auth')->group(function () {
 
 // SEO
 Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('sitemap');
+
+// Mail test fallback (evita problemas com cache de rotas em ambientes de teste)
+Route::post('/api/mail/test', [MailTestController::class, 'send'])->middleware('throttle:5,1');

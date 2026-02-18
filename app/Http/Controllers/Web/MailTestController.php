@@ -2,54 +2,85 @@
 
 namespace App\Http\Controllers\Web;
 
-use App\Http\Controllers\Controller;
-use App\Services\MailTestService;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Controller;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\View;
+use Illuminate\Support\Arr;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\Config;
-use Illuminate\Support\Facades\Log;
-use Throwable;
 
 class MailTestController extends Controller
 {
-    public function __construct(private MailTestService $service)
-    {
-    }
-
     public function send(Request $request): JsonResponse
     {
-        if (!Config::get('mailtest.enabled', false)) {
-            return response()->json(['error' => 'Mail test desativado'], 403);
+        if (!config('mailtest.enabled', false) && app()->environment('production')) {
+            abort(404);
         }
-        $validated = $request->validate([
-            'subject' => ['nullable', 'string', 'max:255'],
-            'template' => ['nullable', 'string'],
-            'html' => ['nullable', 'string'],
-            'data' => ['array'],
-            'to' => ['required', 'array', 'min:1'],
-            'to.*' => ['string'],
-            'cc' => ['array'],
-            'cc.*' => ['string'],
-            'bcc' => ['array'],
-            'bcc.*' => ['string'],
-            'attachments' => ['array'],
-            'attachments.*.path' => ['required', 'string'],
-            'attachments.*.name' => ['nullable', 'string'],
-            'attachments.*.mime' => ['nullable', 'string'],
-            'simulate' => ['sometimes', 'boolean'],
+
+        $data = $request->validate([
+            'subject' => 'required|string|max:255',
+            'html' => 'nullable|string',
+            'template' => 'nullable|string',
+            'to' => 'required|array|min:1',
+            'to.*' => 'email',
+            'cc' => 'sometimes|array',
+            'cc.*' => 'email',
+            'bcc' => 'sometimes|array',
+            'bcc.*' => 'email',
+            'attachments' => 'sometimes|array',
+            'attachments.*.path' => 'required_with:attachments|string',
+            'attachments.*.name' => 'sometimes|string',
+            'attachments.*.mime' => 'sometimes|string',
+            'simulate' => 'sometimes|boolean',
         ]);
 
-        $simulate = (bool) ($validated['simulate'] ?? false);
-        try {
-            $result = $this->service->send($validated, $simulate);
-            return response()->json($result, 200);
-        } catch (Throwable $e) {
-            Log::channel(config('mailtest.channel', 'mailtest'))->error('MailTest failed', [
-                'message' => $e->getMessage(),
-                'trace' => app()->hasDebugModeEnabled() ? $e->getTraceAsString() : null,
-            ]);
-            return response()->json(['error' => $e->getMessage()], 422);
+        $to = array_values(array_unique($data['to']));
+        $cc = array_values(array_unique($data['cc'] ?? []));
+        $bcc = array_values(array_unique($data['bcc'] ?? []));
+
+        if (empty($data['html']) && empty($data['template'])) {
+            return response()->json(['message' => 'Informe html ou template.'], 422);
         }
+
+        if (!empty($data['template']) && !View::exists($data['template'])) {
+            return response()->json(['message' => 'Template inválido.'], 422);
+        }
+
+        $payload = [
+            'subject' => $data['subject'],
+            'html' => $data['html'] ?? null,
+            'template' => $data['template'] ?? null,
+            'recipients' => compact('to', 'cc', 'bcc'),
+            'attachments' => $data['attachments'] ?? [],
+        ];
+
+        if (!empty($data['simulate'])) {
+            return response()->json(['status' => 'simulated'] + $payload);
+        }
+
+        Mail::send([], [], function ($message) use ($data, $to, $cc, $bcc) {
+            $message->subject($data['subject'])
+                ->to($to);
+            if (!empty($cc)) $message->cc($cc);
+            if (!empty($bcc)) $message->bcc($bcc);
+
+            if (!empty($data['template'])) {
+                $message->setBody(view($data['template'])->render(), 'text/html');
+            } else {
+                $message->setBody($data['html'] ?? '', 'text/html');
+            }
+
+            foreach ($data['attachments'] ?? [] as $att) {
+                $path = Arr::get($att, 'path');
+                if ($path && is_readable($path)) {
+                    $name = Arr::get($att, 'name');
+                    $mime = Arr::get($att, 'mime');
+                    $message->attach($path, array_filter(['as' => $name, 'mime' => $mime]));
+                }
+            }
+        });
+
+        return response()->json(['status' => 'sent'] + $payload);
     }
 }
 

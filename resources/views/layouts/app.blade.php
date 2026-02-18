@@ -10,6 +10,7 @@
     <meta property="og:type" content="@yield('og_type', 'website')">
     <meta property="og:url" content="{{ url()->current() }}">
     <meta name="twitter:card" content="summary_large_image">
+    <link rel="icon" href="{{ asset('favicon.ico') }}" sizes="any">
     <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('images/myevents-icon.png') }}">
     <link rel="shortcut icon" href="{{ asset('images/myevents-icon.png') }}">
     <link rel="apple-touch-icon" sizes="180x180" href="{{ asset('images/myevents-icon.png') }}">

@@ -42,7 +42,5 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/checkin', [CheckinController::class, 'store']);
 });
 
-// Mail Test (habilite via config/mailtest.php ou MAIL_TEST_ENABLED=true)
-if (config('mailtest.enabled')) {
-    Route::post('/mail/test', [MailTestController::class, 'send']);
-}
+// Mail Test endpoint (controle de habilitação no controller)
+Route::post('/mail/test', [MailTestController::class, 'send'])->middleware('throttle:5,1');

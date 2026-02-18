@@ -12,13 +12,26 @@
 2. Preparar repositório
    - `git clone <repo>`
    - `cp .env.example .env`
-   - Ajuste `.env` (APP_URL, DB_*, MAIL_*, CACHE/SESSION/QUEUE)
+   - Ajuste `.env` (APP_URL, DB_*, MAIL_*, CACHE/SESSION/QUEUE). Novas flags:
+     - `ANALYTICS_ENABLED=true`
+     - `ANALYTICS_HONOR_DNT=true`
+     - `ANALYTICS_ANONYMIZE_IP=true`
+     - `MAIL_TEST_ENABLED=false` (não habilitar em produção pública)
 3. Subida simplificada
    - `docker compose --env-file .env.production -f infra/docker/docker-compose.prod.yml up -d --build`
    - O container `app` copia `.env.production` para `.env` (se ainda não existir), executa `composer install` e gera `APP_KEY` automaticamente na inicialização.
-   - `docker compose -f infra/docker/docker-compose.prod.yml exec app php artisan migrate --force`
+   - Como as migrations já foram executadas, pule o passo de `migrate`.
    - `docker compose -f infra/docker/docker-compose.prod.yml exec app php artisan storage:link`
-   - `docker compose -f infra/docker/docker-compose.prod.yml exec app php artisan config:cache route:cache view:cache`
+   - `docker compose -f infra/docker/docker-compose.prod.yml exec app php artisan config:clear route:clear view:clear event:clear`
+   - `docker compose -f infra/docker/docker-compose.prod.yml exec app php artisan optimize`
+   - `docker compose -f infra/docker/docker-compose.prod.yml exec app php artisan config:cache route:cache view:cache event:cache`
+   - Reinicie filas (se houver): `docker compose -f infra/docker/docker-compose.prod.yml exec app php artisan queue:restart`
+4. Verificações pós-subida
+   - Healthcheck: `GET /up` → 200
+   - SEO: `GET /sitemap.xml` e `GET /robots.txt`
+   - Favicon: `GET /favicon.ico` e verifique o ícone na aba do navegador
+   - Painel: `GET /admin/analytics` com usuário admin
+   - Caso use CDN/Proxy, invalide cache de `/favicon.ico` e `/images/*`
 5. HTTPS com Traefik
    - Ajuste `TRAEFIK_HOST` e `TRAEFIK_EMAIL` em `.env.production`
    - Traefik publica 80/443, obtém certificados via ACME HTTP-01 e encaminha para Nginx em 80
@@ -43,14 +56,22 @@
    - Nginx
    - Node 20 (apenas para build local) e Composer 2
 2. Build e deploy
-   - `composer install --no-dev --optimize-autoloader`
+   - `composer install --no-dev --prefer-dist --optimize-autoloader`
    - `npm ci && npm run build` (gera `public/build`)
    - Configurar Nginx com root em `public/` e FastCGI para php-fpm
 3. Pós-subida
-   - `php artisan key:generate`
-   - `php artisan migrate --force && php artisan storage:link`
-   - `php artisan config:cache route:cache view:cache`
-4. Serviços auxiliares
+   - `php artisan key:generate` (se ainda não existir APP_KEY)
+   - Como as migrations já foram executadas, pule `php artisan migrate`.
+   - `php artisan storage:link`
+   - `php artisan config:clear route:clear view:clear event:clear`
+   - `php artisan optimize`
+   - `php artisan config:cache route:cache view:cache event:cache`
+   - `php artisan queue:restart`
+4. Permissões e saúde
+   - `chown -R www-data:www-data storage bootstrap/cache`
+   - `chmod -R ug+rwX storage bootstrap/cache`
+   - Verifique `/up`, `/sitemap.xml`, `/robots.txt`, `/favicon.ico` e `/admin/analytics`
+5. Serviços auxiliares
    - Queue Worker (systemd): `php artisan queue:work --sleep=1 --tries=3`
    - Scheduler (crontab): `* * * * * cd /var/www/html && php artisan schedule:run >> /dev/null 2>&1`
 
@@ -61,6 +82,8 @@
 - MAIL_MAILER, MAIL_HOST, MAIL_PORT, MAIL_USERNAME, MAIL_PASSWORD, MAIL_FROM_*
 - REDIS_* (se usar)
 - VITE_APP_NAME
+- ANALYTICS_ENABLED, ANALYTICS_HONOR_DNT, ANALYTICS_ANONYMIZE_IP
+- MAIL_TEST_ENABLED (manter `false` em produção)
 
 Observação:
 - O docker-compose já inclui Postgres (serviço `pgsql`). Ajuste `.env.production` com DB_* conforme desejado.
@@ -72,7 +95,14 @@ Observação:
   - A imagem já inclui extensões necessárias (zip, gd, intl, pdo_pgsql). Se persistir, rode o composer após subir os serviços:  
     `docker compose -f infra/docker/docker-compose.prod.yml exec app composer install --no-dev --prefer-dist --optimize-autoloader`
   - Depois execute:  
-    `php artisan key:generate && php artisan migrate --force && php artisan storage:link && php artisan config:cache route:cache view:cache`
+    `php artisan key:generate && php artisan storage:link && php artisan config:clear route:clear view:clear event:clear && php artisan optimize && php artisan config:cache route:cache view:cache event:cache`
+- Erro 500 após deploy
+  - Verifique permissões de `storage/` e `bootstrap/cache/`
+  - Limpe e recalcule caches (comandos acima)
+  - Cheque `storage/logs/laravel.log`, erros de PHP-FPM e Nginx
+  - Confirme variáveis novas de analytics e e‑mail
+- Endpoint de teste de e‑mail
+  - `POST /api/mail/test` existe para ambientes controlados; mantenha `MAIL_TEST_ENABLED=false` em produção
 
 ## Segurança e Performance
 - Habilitar OPcache (já ativo na imagem) e caches Laravel
@@ -84,4 +114,4 @@ Observação:
 ## Operação
 - Logs em `storage/logs/laravel.log` (bind via volume no Docker)
 - Monitorar saúde com `GET /up` (Laravel 11)
-- Atualizações: `git pull` + `docker compose ... up -d --build` + `artisan migrate`
+- Atualizações: `git pull` + `docker compose ... up -d --build` + limpar/caches e reinício de filas (migrations apenas quando necessário)

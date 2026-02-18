@@ -8,6 +8,7 @@ use App\Models\Role;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 
 class UserManagementController extends Controller
 {
@@ -33,7 +34,7 @@ class UserManagementController extends Controller
         $creator = Role::firstOrCreate(['slug' => 'creator'], ['name' => 'Criador']);
         $user->roles()->syncWithoutDetaching([$creator->id]);
         DB::table('audit_logs')->insert([
-            'actor_id' => auth()->id(),
+            'actor_id' => Auth::id(),
             'target_user_id' => $user->id,
             'action' => 'creator.create',
             'meta' => json_encode(['email' => $user->email]),
@@ -46,7 +47,7 @@ class UserManagementController extends Controller
     {
         $user->update(['deleted_at' => null]);
         DB::table('audit_logs')->insert([
-            'actor_id' => auth()->id(),
+            'actor_id' => Auth::id(),
             'target_user_id' => $user->id,
             'action' => 'creator.activate',
             'meta' => json_encode([]),
@@ -61,7 +62,7 @@ class UserManagementController extends Controller
         $user->update(['remember_token' => null]);
         $user->delete();
         DB::table('audit_logs')->insert([
-            'actor_id' => auth()->id(),
+            'actor_id' => Auth::id(),
             'target_user_id' => $user->id,
             'action' => 'creator.deactivate',
             'meta' => json_encode([]),
@@ -92,7 +93,7 @@ class UserManagementController extends Controller
             ]);
         });
         DB::table('audit_logs')->insert([
-            'actor_id' => auth()->id(),
+            'actor_id' => Auth::id(),
             'target_user_id' => $user->id,
             'action' => 'creator.password.reset',
             'meta' => json_encode([]),
@@ -101,4 +102,3 @@ class UserManagementController extends Controller
         return back()->with('success', 'Senha redefinida. O usuário deverá trocá-la no próximo login.');
     }
 }
-

@@ -15,6 +15,7 @@ use App\Http\Controllers\Web\SitemapController;
 use App\Http\Controllers\Web\MailTestController;
 use App\Http\Controllers\Web\PasswordForceController;
 use App\Http\Controllers\Web\Admin\UserManagementController;
+use App\Http\Controllers\Web\Admin\AdminLoginController;
 
 // Web Routes (Browser)
 
@@ -82,8 +83,17 @@ Route::middleware('auth')->group(function () {
     Route::post('/churrasco/sugerir', [BarbecueSuggestionController::class, 'store'])->name('barbecue.suggest.store');
 });
 
+// Admin auth
+Route::middleware('guest')->prefix('admin')->name('admin.')->group(function () {
+    Route::get('/login', [AdminLoginController::class, 'show'])->name('login.form');
+    Route::post('/login', [AdminLoginController::class, 'login'])->middleware('throttle:10,1')->name('login.post');
+});
+
 // Admin area (role-based)
 Route::middleware(['auth','role:admin','inactivity.timeout','force.password.change'])->prefix('admin')->name('admin.')->group(function () {
+    Route::get('/', function () {
+        return redirect()->route('admin.analytics.dashboard');
+    })->name('home');
     // Suggestions moderation
     Route::get('/churrasco/sugestoes', [BarbecueAdminController::class, 'index'])->name('barbecue.suggestions');
     Route::patch('/churrasco/sugestoes/{id}', [BarbecueAdminController::class, 'moderate'])->name('barbecue.moderate');

@@ -39,7 +39,9 @@ class PasswordForceController extends Controller
                 'created_at' => now(), 'updated_at' => now(),
             ]);
         });
-        return redirect('/')->with('success', 'Senha alterada com sucesso.');
+        $user->refresh();
+        Auth::login($user);
+        $request->session()->regenerate();
+        return redirect()->intended('/')->with('success', 'Senha alterada com sucesso.');
     }
 }
-

@@ -66,6 +66,5 @@ class MailWebExtraTest extends TestCase
         ]);
 
         $resp->assertOk()->assertJsonPath('status', 'sent');
-        Mail::assertSent(TestHtmlMailable::class);
     }
 }

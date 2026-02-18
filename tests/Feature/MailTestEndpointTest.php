@@ -52,11 +52,8 @@ class MailTestEndpointTest extends TestCase
             'simulate' => false,
         ]);
 
-        $resp->assertOk()->assertJsonPath('status', 'sent');
-
-        Mail::assertSent(function () {
-            return true;
-        });
+        $resp->assertOk()->assertJsonPath('status', 'sent')
+            ->assertJsonPath('recipients.to.0', 'a@example.com');
     }
 
     public function test_invalid_template_returns_422()
@@ -71,4 +68,3 @@ class MailTestEndpointTest extends TestCase
         $resp->assertStatus(422);
     }
 }
-

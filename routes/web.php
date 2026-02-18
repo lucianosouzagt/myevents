@@ -94,7 +94,7 @@ Route::middleware('guest:admin')->prefix('admin')->name('admin.')->group(functio
 });
 
 // Admin area (separate guard)
-Route::middleware(['auth:admin','admin.timeout','admin.2fa'])->prefix('admin')->name('admin.')->group(function () {
+Route::middleware(['admin.auth','auth:admin','admin.timeout','admin.2fa'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/', [AdminDashboardController::class, 'index'])->name('home');
     // Suggestions moderation
     Route::get('/churrasco/sugestoes', [BarbecueAdminController::class, 'index'])->name('barbecue.suggestions');

@@ -20,6 +20,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'jwt.auth' => \App\Http\Middleware\JwtAuthenticate::class,
             'admin.2fa' => \App\Http\Middleware\AdminTwoFactor::class,
             'admin.timeout' => \App\Http\Middleware\AdminTimeout::class,
+            'admin.auth' => \App\Http\Middleware\AdminAuthenticate::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

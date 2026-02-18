@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Mail;
 use Tests\TestCase;
+use App\Mail\TestHtmlMailable;
 
 class MailWebExtraTest extends TestCase
 {
@@ -65,8 +66,6 @@ class MailWebExtraTest extends TestCase
         ]);
 
         $resp->assertOk()->assertJsonPath('status', 'sent');
-        Mail::assertSent(function ($mail) {
-            return true;
-        });
+        Mail::assertSent(TestHtmlMailable::class);
     }
 }

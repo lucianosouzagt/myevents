@@ -23,6 +23,19 @@
    - Ajuste `TRAEFIK_HOST` e `TRAEFIK_EMAIL` em `.env.production`
    - Traefik publica 80/443, obtém certificados via ACME HTTP-01 e encaminha para Nginx em 80
    - Certifique-se de que o DNS do domínio aponta para o servidor e as portas 80/443 estão liberadas
+6. E-mail com Poste.io
+   - Serviço `poste` incluído no compose (imagem `analogic/poste.io`)
+   - DNS:
+     - `A` para `mail.<seu-dominio>` apontando para o IP do servidor
+     - `MX` para o domínio principal apontando para `mail.<seu-dominio>`
+     - `SPF`: `v=spf1 mx -all`
+     - `DKIM`: gerar no painel do Poste e publicar o TXT fornecido
+     - `DMARC`: `_dmarc.<seu-dominio>` com política (ex.: `v=DMARC1; p=quarantine; rua=mailto:postmaster@<seu-dominio>`)
+     - PTR (reverse DNS) do IP para `mail.<seu-dominio>` (solicitar ao provedor)
+   - Variáveis:
+     - Em `.env.production`: `POSTE_HOST=mail.<seu-dominio>`
+     - Laravel: `MAIL_HOST=mail.<seu-dominio>`, `MAIL_PORT=587`, `MAIL_ENCRYPTION=tls`, `MAIL_USERNAME`/`MAIL_PASSWORD` de uma conta criada no Poste, `MAIL_FROM_ADDRESS=no-reply@<seu-dominio>`
+   - Painel do Poste publicado via Traefik em `https://mail.<seu-dominio>` (certificado automático)
 
 ## Option B — Bare Metal (Sem Docker)
 1. Instalar pacotes

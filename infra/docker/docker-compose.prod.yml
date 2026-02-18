@@ -118,6 +118,44 @@ services:
     networks:
       - web
 
+  poste:
+    image: analogic/poste.io
+    container_name: myevents-poste
+    restart: unless-stopped
+    environment:
+      - HOSTNAME=${POSTE_HOST}
+      - HTTPS=OFF
+      - DISABLE_CLAMAV=1
+      - TZ=UTC
+    volumes:
+      - ./mail/data:/data
+    ports:
+      - "25:25"
+      - "465:465"
+      - "587:587"
+      - "110:110"
+      - "995:995"
+      - "143:143"
+      - "993:993"
+    networks:
+      - web
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.mail-http.rule=Host(`${POSTE_HOST}`)"
+      - "traefik.http.routers.mail-http.entrypoints=web"
+      - "traefik.http.routers.mail-http.middlewares=mail-redirect-to-https"
+      - "traefik.http.middlewares.mail-redirect-to-https.redirectscheme.scheme=https"
+      - "traefik.http.routers.mail-secure.rule=Host(`${POSTE_HOST}`)"
+      - "traefik.http.routers.mail-secure.entrypoints=websecure"
+      - "traefik.http.routers.mail-secure.tls.certresolver=letsencrypt"
+      - "traefik.http.services.mail.loadbalancer.server.port=80"
+    healthcheck:
+      test: ["CMD-SHELL", "bash -c '(</dev/tcp/127.0.0.1/25) >/dev/null 2>&1 && (</dev/tcp/127.0.0.1/587) >/dev/null 2>&1 && (</dev/tcp/127.0.0.1/993) >/dev/null 2>&1 || exit 1'"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+
 
 networks:
   web:

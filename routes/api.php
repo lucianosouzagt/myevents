@@ -6,6 +6,7 @@ use App\Http\Controllers\InvitationController;
 use App\Http\Controllers\CheckinController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
+use App\Http\Controllers\Web\MailTestController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -40,3 +41,8 @@ Route::middleware('auth:sanctum')->group(function () {
     // Check-in (Organizer)
     Route::post('/checkin', [CheckinController::class, 'store']);
 });
+
+// Mail Test (habilite via config/mailtest.php ou MAIL_TEST_ENABLED=true)
+if (config('mailtest.enabled')) {
+    Route::post('/mail/test', [MailTestController::class, 'send']);
+}

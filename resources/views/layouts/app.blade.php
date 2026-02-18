@@ -18,7 +18,9 @@
     @yield('head')
     @yield('structured_data') 
 
+    @production
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @endproduction
 
     <script src="https://cdn.tailwindcss.com"></script>
     <script>

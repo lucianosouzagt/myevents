@@ -65,9 +65,8 @@ class MailWebExtraTest extends TestCase
         ]);
 
         $resp->assertOk()->assertJsonPath('status', 'sent');
-        Mail::assertSent(function () {
+        Mail::assertSent(function ($mail) {
             return true;
         });
     }
 }
-

@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('admin.layouts.app')
 
 @section('content')
 <div class="max-w-md mx-auto bg-white dark:bg-gray-800 p-6 rounded shadow">
@@ -23,7 +23,7 @@
             <input id="remember" type="checkbox" name="remember" class="mr-2">
             <label for="remember" class="text-sm">Lembrar-me</label>
         </div>
-        <button class="px-4 py-2 rounded bg-blue-600 text-white w-full">Entrar</button>
+        <button class="px-4 py-2 rounded bg-blue-600 hover:bg-blue-700 text-white w-full">Entrar</button>
         @if(session('error'))<p class="text-red-500 text-sm mt-2">{{ session('error') }}</p>@endif
     </form>
 </div>

@@ -153,8 +153,6 @@ class AnalyticsController extends Controller
 
     protected function authorizeAdmin(): void
     {
-        $user = Auth::user();
-        $ok = $user && method_exists($user, 'hasRole') && \call_user_func([$user, 'hasRole'], 'admin');
-        abort_unless($ok, 403);
+        abort_unless(Auth::guard('admin')->check(), 403);
     }
 }

@@ -13,10 +13,7 @@ class BarbecueAdminController extends Controller
 {
     public function index()
     {
-        $user = Auth::user();
-        if (!$user || !method_exists($user, 'hasRole') || !\call_user_func([$user, 'hasRole'], 'admin')) {
-            abort(403);
-        }
+        abort_unless(Auth::guard('admin')->check(), 403);
         $pending = BarbecueSuggestion::where('status', BarbecueSuggestion::STATUS_PENDING)
             ->orderByDesc('created_at')
             ->get();
@@ -26,10 +23,7 @@ class BarbecueAdminController extends Controller
 
     public function moderate(Request $request, int $id)
     {
-        $user = Auth::user();
-        if (!$user || !method_exists($user, 'hasRole') || !\call_user_func([$user, 'hasRole'], 'admin')) {
-            abort(403);
-        }
+        abort_unless(Auth::guard('admin')->check(), 403);
         $request->validate([
             'action' => ['required', 'in:approve,reject'],
             'notes' => ['nullable', 'string', 'max:500'],
